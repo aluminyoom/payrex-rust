@@ -30,6 +30,8 @@ pub fn payrex(attr: TokenStream, item: TokenStream) -> TokenStream {
         }
     };
 
+    let ident = &input_struct.ident;
+
     let parsed_opts: ParsedPayrexAttrs = opts.into();
     let mut opts = parsed_opts.set_fields(fields);
 
@@ -39,10 +41,14 @@ pub fn payrex(attr: TokenStream, item: TokenStream) -> TokenStream {
     opts.add_livemode();
     opts.add_timestamp();
     opts.add_currency();
+    opts.add_optional_struct(ident);
 
     *fields = opts.fields;
+    let optional_struct = opts.optional_struct;
 
     TokenStream::from(quote! {
         #input_struct
+
+        #optional_struct
     })
 }
