@@ -86,7 +86,7 @@ define_id!(RefundId, "re_", "Refund ID");
 define_id!(WebhookId, "wh_", "Webhook ID");
 define_id!(EventId, "evt_", "Event ID");
 define_id!(PayoutId, "po_", "Payout ID");
-define_id!(PayoutTransactionId, "pot_", "Payout Transaction ID");
+define_id!(PayoutTransactionId, "po_txn_", "Payout Transaction ID");
 
 #[cfg(test)]
 mod tests {
