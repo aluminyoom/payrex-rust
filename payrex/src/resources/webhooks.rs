@@ -7,6 +7,7 @@ use crate::{
     http::HttpClient,
     types::{List, ListParams, Timestamp, WebhookId, event::EventType},
 };
+use payrex_derive::payrex;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -58,19 +59,15 @@ impl Webhooks {
     }
 }
 
+#[payrex(livemode, timestamp, description = "webhook")]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Webhook {
     pub id: WebhookId,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub secret_key: Option<String>,
     pub status: WebhookStatus,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-    pub livemode: bool,
     pub url: String,
     pub events: Vec<EventType>,
-    pub created_at: Timestamp,
-    pub updated_at: Timestamp,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -80,24 +77,23 @@ pub enum WebhookStatus {
     Disabled,
 }
 
+#[payrex(description = "webhook")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateWebhook {
     pub url: String,
     pub events: Vec<EventType>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
 }
 
+#[payrex(description = "webhook")]
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct UpdateWebhook {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub events: Option<Vec<EventType>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
 }
 
+#[payrex(description = "webhook")]
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct WebhookListParams {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -105,8 +101,6 @@ pub struct WebhookListParams {
     pub base: Option<ListParams>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
 }
 
 impl CreateWebhook {

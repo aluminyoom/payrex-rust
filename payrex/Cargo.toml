@@ -1,0 +1,65 @@
+[package]
+name = "payrex"
+version = "0.1.0"
+edition = "2024"
+authors = ["ryana@ryanaque.com", "paulpare@protonmail.com"]
+description = "Unofficial Rust SDK for PayRex payment platform"
+documentation = "https://docs.rs/payrex"
+homepage = "https://github.com/mayspc/payrex-rust"
+repository = "https://github.com/mayspc/payrex-rust"
+license = "MIT"
+keywords = ["payrex", "payment", "api", "sdk", "philippines"]
+categories = ["api-bindings", "web-programming"]
+readme = "README.md"
+rust-version = "1.90"
+
+[lints.rust]
+unused = { level = "allow", priority = -1 }
+missing_docs = "warn"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1.47.1", features = ["full"] }
+
+# HTTP client
+reqwest = { version = "0.12.23", features = ["json", "rustls-tls"], default-features = false }
+http = "1.3.1"
+bytes = "1.10.1"
+
+# Serialization
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+
+# Error handling
+thiserror = "2.0.17"
+
+# Date/Time
+chrono = { version = "0.4.42", features = ["serde"] }
+
+# URL handling
+url = { version = "2.5.7", features = ["serde"] }
+
+# Base64 encoding for HTTP Basic Auth
+base64 = "0.22"
+
+# Form encoding with nested structure support
+# serde_qs = "1.0.0-rc.3"
+serde_qs = { git = "https://github.com/Sheape/serde_qs.git", branch = "array-support" }
+serde_plain = "1.0.2"
+
+# Custom proc macros for payrex
+payrex_derive = { path = "../payrex_derive" }
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockito = "1.6"
+wiremock = "0.6"
+
+[features]
+default = ["rustls-tls"]
+rustls-tls = []
+native-tls = ["reqwest/native-tls"]
+
+[[example]]
+name = "basic_usage"
+path = "examples/basic_usage.rs"

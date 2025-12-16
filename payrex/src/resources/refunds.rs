@@ -7,6 +7,7 @@ use crate::{
     http::HttpClient,
     types::{Currency, Metadata, PaymentId, RefundId, Timestamp},
 };
+use payrex_derive::payrex;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -32,23 +33,22 @@ impl Refunds {
     }
 }
 
+#[payrex(
+    timestamp,
+    metadata,
+    amount,
+    currency,
+    livemode,
+    description = "refund"
+)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Refund {
     pub id: RefundId,
-    pub amount: i64,
-    pub currency: Currency,
-    pub livemode: bool,
     pub status: RefundStatus,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
     pub reason: RefundReason,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub remarks: Option<String>,
     pub payment_id: PaymentId,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
-    pub created_at: Timestamp,
-    pub updated_at: Timestamp,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -72,31 +72,24 @@ pub enum RefundReason {
     Others,
 }
 
+#[payrex(amount, currency, metadata, description = "refund")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateRefund {
     pub payment_id: PaymentId,
-    pub amount: i64,
-    pub currency: Currency,
     pub reason: RefundReason,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub remarks: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
 }
 
+#[payrex(metadata)]
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct UpdateRefund {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
-}
+pub struct UpdateRefund {}
 
 impl CreateRefund {
     #[must_use]
     pub fn new(
         payment_id: PaymentId,
-        amount: i64,
+        amount: u64,
         currency: Currency,
         reason: RefundReason,
     ) -> Self {

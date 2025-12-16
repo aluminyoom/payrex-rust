@@ -4,6 +4,7 @@
 
 use std::sync::Arc;
 
+use payrex_derive::payrex;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -52,30 +53,26 @@ impl BillingStatementLineItems {
     }
 }
 
+#[payrex(livemode, timestamp, description = "billing_statement_line_items")]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BillingStatementLineItem {
     pub id: BillingStatementLineItemId,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
     pub unit_price: u64,
     pub quantity: u64,
     pub billing_statement_id: BillingStatementId,
-    pub livemode: bool,
-    pub created_at: Timestamp,
-    pub updated_at: Timestamp,
 }
 
+#[payrex(description = "billing_statement_line_items")]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CreateBillingStatementLineItem {
     pub billing_statement_id: BillingStatementId,
-    pub description: String,
     pub unit_price: u64,
     pub quantity: u64,
 }
 
+#[payrex(description = "billing_statement_line_items")]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub struct UpdateBillingStatementLineItem {
-    pub description: Option<String>,
     pub unit_price: Option<u64>,
     pub quantity: Option<u64>,
 }
@@ -90,7 +87,7 @@ impl CreateBillingStatementLineItem {
     ) -> Self {
         Self {
             billing_statement_id,
-            description: description.into(),
+            description: Some(description.into()),
             unit_price,
             quantity,
         }
@@ -134,7 +131,7 @@ mod tests {
             3,
         );
         assert_eq!(params.billing_statement_id.as_str(), "bstm_1");
-        assert_eq!(params.description, "Item A".to_string());
+        assert_eq!(params.description, Some("Item A".to_string()));
         assert_eq!(params.unit_price, 1500);
         assert_eq!(params.quantity, 3);
     }
@@ -182,7 +179,7 @@ mod tests {
         let serialized = serde_json::to_string(&params).unwrap();
         assert_eq!(
             serialized,
-            r#"{"description":"Example description","unit_price":500,"quantity":1}"#
+            r#"{"unit_price":500,"quantity":1,"description":"Example description"}"#
         );
     }
 }

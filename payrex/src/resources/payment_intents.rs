@@ -11,6 +11,7 @@ use crate::{
         Timestamp,
     },
 };
+use payrex_derive::payrex;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -112,18 +113,18 @@ pub struct PaymentError {
 /// A [`PaymentIntent`] tracks the customer's payment lifecycle, keeping track of any failed payment attempts and ensuring the customer is only charged once. Create one [`PaymentIntent`] whenever your customer arrives at your checkout page. Retrieve the Payment Intent later to see the history of payment attempts.
 ///
 /// A [`PaymentIntent`] transitions through multiple statuses throughout its lifetime via Payrex.JS until it creates, at most, one successful payment.
+#[payrex(
+    timestamp,
+    amount,
+    currency,
+    livemode,
+    metadata,
+    description = "payment_intent"
+)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PaymentIntent {
     /// Unique identifier for the resource. The prefix is `pi_`.
     pub id: PaymentIntentId,
-
-    /// The amount to be collected by the [`PaymentIntent`]. This is a positive integer that your
-    /// customer will pay in the smallest currency unit, cents. If the customer should pay ₱
-    /// 120.50, the amount of the [`PaymentIntent`] should be 12050.
-    ///
-    /// The minimum amount is ₱ 20 (2000 in cents) and the maximum amount is ₱ 59,999,999.99
-    /// (5999999999 in cents).
-    pub amount: i64,
 
     /// The amount already collected by the [`PaymentIntent`]. This is a positive integer that your
     /// customer paid in the smallest currency unit, cents. If the customer paid ₱ 120.50, the
@@ -131,7 +132,7 @@ pub struct PaymentIntent {
     ///
     /// The minimum amount is ₱ 20 (2000 in cents) and the maximum amount is ₱ 59,999,999.99
     /// (5999999999 in cents).
-    pub amount_received: i64,
+    pub amount_received: u64,
 
     /// The amount that can be captured by the [`PaymentIntent`]. This is a positive integer that your
     /// customer authorized in the smallest currency unit, cents. If the customer authorized ₱
@@ -139,28 +140,11 @@ pub struct PaymentIntent {
     ///
     /// The minimum amount is ₱ 20 (2000 in cents) and the maximum amount is ₱ 59,999,999.99
     /// (5999999999 in cents).
-    pub amount_capturable: i64,
+    pub amount_capturable: u64,
 
     ///The client secret of this [`PaymentIntent`] used for client-side retrieval using a public API
     ///key. The client secret can be used to complete a payment from your client application.
     pub client_secret: String,
-
-    /// A three-letter ISO currency code in uppercase. As of the moment, we only support PHP.
-    pub currency: Currency,
-
-    /// An arbitrary string attached to the [`PaymentIntent`]. Useful reference when viewing paid
-    /// Payment from PayRex Dashboard.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-
-    /// The value is `true` if the resource's mode is live or the value is `false` if the resource mode is test.
-    pub livemode: bool,
-
-    /// A set of key-value pairs attached to the [`PaymentIntent`] and the resources created by the
-    /// [`PaymentIntent`], e.g., Payment. This is useful for storing additional information about the
-    /// [`PaymentIntent`].
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
 
     /// The `Payment` ID of the latest successful payment created by the [`PaymentIntent`].
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -205,16 +189,11 @@ pub struct PaymentIntent {
     /// The time by which the [`PaymentIntent`] must be captured to avoid being canceled.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_before_at: Option<Timestamp>,
-
-    /// The time the resource was created and measured in seconds since the Unix epoch.
-    pub created_at: Timestamp,
-
-    /// The time the resource was updated and measured in seconds since the Unix epoch.
-    pub updated_at: Timestamp,
 }
 
 /// All fields in this struct are optional since fields nested under billing statements have
 /// optional fields. Hence, this should not be used for regular payment intent routes.
+#[payrex(metadata, description = "payment_intent")]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OptionalPaymentIntent {
     /// Unique identifier for the resource. The prefix is `pi_`.
@@ -226,7 +205,7 @@ pub struct OptionalPaymentIntent {
     ///
     /// The minimum amount is ₱ 20 (2000 in cents) and the maximum amount is ₱ 59,999,999.99
     /// (5999999999 in cents).
-    pub amount: Option<i64>,
+    pub amount: Option<u64>,
 
     /// The amount already collected by the [`PaymentIntent`]. This is a positive integer that your
     /// customer paid in the smallest currency unit, cents. If the customer paid ₱ 120.50, the
@@ -234,7 +213,7 @@ pub struct OptionalPaymentIntent {
     ///
     /// The minimum amount is ₱ 20 (2000 in cents) and the maximum amount is ₱ 59,999,999.99
     /// (5999999999 in cents).
-    pub amount_received: Option<i64>,
+    pub amount_received: Option<u64>,
 
     /// The amount that can be captured by the [`PaymentIntent`]. This is a positive integer that your
     /// customer authorized in the smallest currency unit, cents. If the customer authorized ₱
@@ -242,7 +221,7 @@ pub struct OptionalPaymentIntent {
     ///
     /// The minimum amount is ₱ 20 (2000 in cents) and the maximum amount is ₱ 59,999,999.99
     /// (5999999999 in cents).
-    pub amount_capturable: Option<i64>,
+    pub amount_capturable: Option<u64>,
 
     ///The client secret of this [`PaymentIntent`] used for client-side retrieval using a public API
     ///key. The client secret can be used to complete a payment from your client application.
@@ -251,19 +230,8 @@ pub struct OptionalPaymentIntent {
     /// A three-letter ISO currency code in uppercase. As of the moment, we only support PHP.
     pub currency: Option<Currency>,
 
-    /// An arbitrary string attached to the [`PaymentIntent`]. Useful reference when viewing paid
-    /// Payment from PayRex Dashboard.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-
     /// The value is `true` if the resource's mode is live or the value is `false` if the resource mode is test.
     pub livemode: Option<bool>,
-
-    /// A set of key-value pairs attached to the [`PaymentIntent`] and the resources created by the
-    /// [`PaymentIntent`], e.g., Payment. This is useful for storing additional information about the
-    /// [`PaymentIntent`].
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
 
     /// The `Payment` ID of the latest successful payment created by the [`PaymentIntent`].
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -348,33 +316,12 @@ pub enum PaymentIntentStatus {
 /// Query parameters when creating a payment intent.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/payment_intents/create#parameters)
+#[payrex(amount, currency, metadata, description = "payment_intent")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreatePaymentIntent {
-    /// The amount to be collected by the [`PaymentIntent`]. This is a positive integer your customer
-    /// will pay in the smallest currency unit, cents. If the customer should pay ₱ 120.50, the
-    /// amount of the [`PaymentIntent`] should be 12050.
-    ///
-    /// The minimum amount is ₱ 20 (2000 in cents) and the maximum amount is ₱ 59,999,999.99
-    /// (5999999999 in cents).
-    pub amount: i64,
-
-    /// A three-letter ISO currency code in uppercase. As of the moment, we only support PHP.
-    pub currency: Currency,
-
     /// The list of payment methods allowed to be processed by the [`PaymentIntent`]. Possible values
     /// are `card`, `gcash`, `maya`, and `qrph`.
     pub payment_methods: Vec<PaymentMethod>,
-
-    /// An arbitrary string attached to the [`PaymentIntent`]. Useful reference when viewing paid
-    /// Payment from PayRex Dashboard.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-
-    /// A set of key-value pairs you can attach to the [`PaymentIntent`] and the resources created by
-    /// the [`PaymentIntent`] e.g. Payment. This can be useful for storing additional information about
-    /// the [`PaymentIntent`] in a hash format.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
 
     /// Describes the `capture_method` of a card payment. Possible values are `automatic` or
     /// `manual`. This is used for hold then capture feature. Please refer to this
@@ -405,21 +352,14 @@ pub struct CreatePaymentIntent {
 /// Query parameters when capturing a payment intent.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/payment_intents/capture#parameters)
+#[payrex(amount)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CapturePaymentIntent {
-    /// The amount to be captured by the [`PaymentIntent`]. This is a positive integer that your
-    /// customer authorized in the smallest currency unit, cents. If the customer should pay ₱
-    /// 120.50, the amount of the [`PaymentIntent`] should be 12050.
-    ///
-    /// The minimum amount is ₱ 20 (2000 in cents), and the maximum amount is ₱ 59,999,999.99
-    /// (5999999999 in cents).
-    pub amount: i64,
-}
+pub struct CapturePaymentIntent {}
 
 impl CapturePaymentIntent {
     /// Creates a new [`CapturePaymentIntent`] with the specified amount.
     #[must_use]
-    pub const fn new(amount: i64) -> Self {
+    pub const fn new(amount: u64) -> Self {
         Self { amount }
     }
 }
@@ -428,7 +368,7 @@ impl CreatePaymentIntent {
     /// Creates a new [`CreatePaymentIntent`] with the specified amount, currency, and payment
     /// methods.
     #[must_use]
-    pub fn new(amount: i64, currency: Currency, payment_methods: &[PaymentMethod]) -> Self {
+    pub fn new(amount: u64, currency: Currency, payment_methods: &[PaymentMethod]) -> Self {
         Self {
             amount,
             currency,

@@ -13,6 +13,7 @@ use crate::{
         Timestamp,
     },
 };
+use payrex_derive::payrex;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -135,45 +136,28 @@ impl BillingStatements {
 /// Billing Statement Resource.
 ///
 /// [Learn more about it here](https://docs.payrexhq.com/docs/api/billing_statements)
+#[payrex(
+    amount,
+    currency,
+    timestamp,
+    livemode,
+    metadata,
+    description = "billing_statements"
+)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BillingStatement {
     /// The ID of a customer resource. To learn more about the customer resource, you can refer
     /// [here](https://docs.payrexhq.com/docs/api/customers).
     pub id: BillingStatementId,
 
-    /// The final amount collected by the `BillingStatement` is a positive integer representing the
-    /// amount your customer will pay in the smallest currency unit, cents. If the customer pays ₱
-    /// 120.50, the amount of the `BillingStatement` should be 12050.
-    ///
-    /// The `BillingStatement` amount is derived from the sum of all `line_items.quantity *
-    /// line_items.unit_price`.
-    ///
-    /// The minimum amount is ₱ 20 (2000 in cents), and the maximum amount is ₱ 59,999,999.99
-    /// (5999999999 in cents).
-    pub amount: i64,
-
     /// Defines if the billing information fields will always show or managed by PayRex. Default value
     /// is `always`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_details_collection: Option<String>,
 
-    /// A three-letter ISO currency code, in uppercase. As of the moment, we only support PHP.
-    ///
-    /// This value is derived from the currency of the associated customer.
-    pub currency: Currency,
-
     /// The ID of a customer resource. To learn more about the customer resource, you can refer
     /// [here](https://docs.payrexhq.com/docs/api/customers).
     pub customer_id: CustomerId,
-
-    /// An arbitrary string attached to the billing statement and copied over to its payment
-    /// intent. This is a useful reference when viewing the payment resources associated with the
-    /// billing statement from the PayRex Dashboard.
-    ///
-    /// If the description is not modified, the default value is "Payment for Billing Statement
-    /// <billing statement number>"
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
 
     /// The time when the billing statement is expected to be paid. If the `due_at` is already past,
     /// your customer can still pay the billing statement if the status is open.
@@ -201,18 +185,6 @@ pub struct BillingStatement {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_items: Option<Vec<BillingStatementLineItem>>,
 
-    /// The value is `true` if the resource's mode is live, and the value is `false` if the resource is
-    /// in test mode.
-    pub livemode: bool,
-
-    /// Set of key-value pairs attached to the billing statement. This is useful for storing
-    /// additional information about the billing statement.
-    ///
-    /// The latest value of the billing statement's metadata will be copied to its payment intent
-    /// once the billing statement is finalized.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
-
     /// The [PaymentIntent](https://docs.payrexhq.com/docs/api/payment_intents) resource created for the [`BillingStatement`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_intent: Option<OptionalPaymentIntent>,
@@ -224,12 +196,6 @@ pub struct BillingStatement {
     pub payment_settings: PaymentSettings,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<OptionalCustomer>,
-
-    /// The time the resource was created and measured in seconds since the Unix epoch.
-    pub created_at: Timestamp,
-
-    /// The time the resource was updated and measured in seconds since the Unix epoch.
-    pub updated_at: Timestamp,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -260,41 +226,21 @@ pub enum BillingStatementStatus {
 /// Query parameters when creating a billing statement.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/billing_statements/create#parameters)
+#[payrex(currency, metadata, description = "billing_statements")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateBillingStatement {
     /// The ID of a customer resource. To learn more about the customer resource, you can refer
     /// [here](https://docs.payrexhq.com/docs/api/customers).
     pub customer_id: CustomerId,
 
-    /// A three-letter ISO currency code, in uppercase. As of the moment, we only support PHP.
-    ///
-    /// This value is derived from the currency of the associated customer.
-    pub currency: Currency,
-
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_settings: Option<PaymentSettings>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_details_collection: Option<String>,
-
-    /// An arbitrary string attached to the billing statement and copied over to its payment
-    /// intent. This is a useful reference when viewing the payment resources associated with the
-    /// billing statement from the PayRex Dashboard.
-    ///
-    /// If the description is not modified, the default value is "Payment for Billing Statement
-    /// <billing statement number>"
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-
-    /// Set of key-value pairs attached to the billing statement. This is useful for storing
-    /// additional information about the billing statement.
-    ///
-    /// The latest value of the billing statement's metadata will be copied to its payment intent
-    /// once the billing statement is finalized.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
 }
 
+#[payrex(metadata, description = "billing_statements")]
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct UpdateBillingStatement {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -305,23 +251,6 @@ pub struct UpdateBillingStatement {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_details_collection: Option<String>,
-
-    /// An arbitrary string attached to the billing statement and copied over to its payment
-    /// intent. This is a useful reference when viewing the payment resources associated with the
-    /// billing statement from the PayRex Dashboard.
-    ///
-    /// If the description is not modified, the default value is "Payment for Billing Statement
-    /// <billing statement number>"
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-
-    /// Set of key-value pairs attached to the billing statement. This is useful for storing
-    /// additional information about the billing statement.
-    ///
-    /// The latest value of the billing statement's metadata will be copied to its payment intent
-    /// once the billing statement is finalized.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
 
     pub due_at: Option<Timestamp>,
 }
