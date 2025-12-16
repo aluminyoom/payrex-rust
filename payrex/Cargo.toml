@@ -2,7 +2,7 @@
 name = "payrex"
 version = "0.1.0"
 edition = "2024"
-authors = ["ryana@ryanaque.com"]
+authors = ["ryana@ryanaque.com", "paulpare@protonmail.com"]
 description = "Unofficial Rust SDK for PayRex payment platform"
 documentation = "https://docs.rs/payrex"
 homepage = "https://github.com/mayspc/payrex-rust"
@@ -46,6 +46,9 @@ base64 = "0.22"
 # serde_qs = "1.0.0-rc.3"
 serde_qs = { git = "https://github.com/Sheape/serde_qs.git", branch = "array-support" }
 serde_plain = "1.0.2"
+
+# Custom proc macros for payrex
+payrex_derive = { path = "../payrex_derive" }
 
 [dev-dependencies]
 tokio-test = "0.4"
