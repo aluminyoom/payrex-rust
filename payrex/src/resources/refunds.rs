@@ -11,6 +11,7 @@ use payrex_derive::payrex;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
+/// Refunds API
 #[derive(Clone)]
 pub struct Refunds {
     http: Arc<HttpClient>,
@@ -22,10 +23,20 @@ impl Refunds {
         Self { http }
     }
 
+    /// Creates a Refund resource.
+    ///
+    /// Endpoint: `POST /refunds`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/refunds/create)
     pub async fn create(&self, params: CreateRefund) -> Result<Refund> {
         self.http.post("/refunds", &params).await
     }
 
+    /// Updates a Refund resource.
+    ///
+    /// Endpoint: `PUT /refunds/:id`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/refunds/update)
     pub async fn update(&self, id: &RefundId, params: UpdateRefund) -> Result<Refund> {
         self.http
             .put(&format!("/refunds/{}", id.as_str()), &params)
@@ -33,6 +44,7 @@ impl Refunds {
     }
 }
 
+/// A Refund resource represents a refunded amount of a paid payment.
 #[payrex(
     timestamp,
     metadata,
@@ -43,49 +55,104 @@ impl Refunds {
 )]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Refund {
+    /// Unique identifier for the resource. The prefix is `re_`.
     pub id: RefundId,
+
+    /// The latest status of the Refund. Possible values are `succeeded`, `failed`, or `pending`.
     pub status: RefundStatus,
+
+    /// The reason of the Refund. Possible values are `fraudulent`, `requested_by_customer`,
+    /// `product_out_of_stock`, `service_not_provided`, `product_was_damaged`, `service_misaligned`,
+    /// `wrong_product_received`, or `others`.
+    ///
+    /// You can use the `remarks` attribute to add remarks if the
+    /// value of the reason is `others`.
     pub reason: RefundReason,
+
+    /// Remarks about the Refund resource. This is useful when viewing a refund via PayRex
+    /// Dashboard.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub remarks: Option<String>,
+
+    /// The ID of the payment to be refunded.
     pub payment_id: PaymentId,
 }
 
+/// The latest status of a Refund.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RefundStatus {
+    /// Refund status when a refund is pending.
     Pending,
+
+    /// Refund status when a refund succeeded.
     Succeeded,
+
+    /// Refund status when a refund failed.
     Failed,
 }
 
+/// The reason of a Refund.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RefundReason {
+    /// The reason for a refund is from a fraudulent payment.
     Fraudulent,
+
+    /// The reason for a refund is when it is requested by a customer.
     RequestedByCustomer,
+
+    /// The reason for a refund is when the product is out of stock.
     ProductOutOfStock,
+
+    /// The reason for a refund is when the product was damaged.
     ProductWasDamaged,
+
+    /// The reason for a refund is when the service was not provided to the customer.
     ServiceNotProvided,
+
+    /// The reason for a refund is when the service is misaligned.
     ServiceMisaligned,
+
+    /// The reason for a refund is when the product received by a customer is a wrong.
     WrongProductReceived,
+
+    /// The reason for a refund is indicated in the remarks.
     Others,
 }
 
+/// Query parameters when creating a refund.
+///
+/// [Reference](https://docs.payrexhq.com/docs/api/refunds/create#parameters)
 #[payrex(amount, currency, metadata, description = "refund")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateRefund {
+    /// The ID of the payment to be refunded.
     pub payment_id: PaymentId,
+
+    /// The reason of the Refund. Possible values are `fraudulent`, `requested_by_customer`,
+    /// `product_out_of_stock`, `service_not_provided`, `product_was_damaged`, `service_misaligned`,
+    /// `wrong_product_received`, or `others`.
+    ///
+    /// You can use the `remarks` attribute to add remarks if the
+    /// value of the reason is `others`.
     pub reason: RefundReason,
+
+    /// Remarks about the Refund resource. This is useful when viewing a refund via PayRex
+    /// Dashboard.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub remarks: Option<String>,
 }
 
+/// Query parameters when updating a refund.
+///
+/// [Reference](https://docs.payrexhq.com/docs/api/refunds/update#parameters)
 #[payrex(metadata)]
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct UpdateRefund {}
 
 impl CreateRefund {
+    /// Creates a new [`CreateRefund`] instance.
     #[must_use]
     pub fn new(
         payment_id: PaymentId,
@@ -104,16 +171,19 @@ impl CreateRefund {
         }
     }
 
+    /// Sets the metadata in the query params when creating a refund.
     pub fn metadata(mut self, metadata: Metadata) -> Self {
         self.metadata = Some(metadata);
         self
     }
 
+    /// Sets the remarks when refund status is set to `others` when creating a refund.
     pub fn remarks(mut self, remarks: impl Into<String>) -> Self {
         self.remarks = Some(remarks.into());
         self
     }
 
+    /// Sets the description in the query params when creating a refund.
     pub fn description(mut self, description: impl Into<String>) -> Self {
         self.description = Some(description.into());
         self
