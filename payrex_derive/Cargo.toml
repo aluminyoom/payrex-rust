@@ -1,0 +1,25 @@
+[package]
+name = "payrex_derive"
+version = "0.1.0"
+edition = "2024"
+authors = ["ryana@ryanaque.com"]
+description = "Proc macros for payrex rust"
+documentation = "https://docs.rs/payrex"
+homepage = "https://github.com/mayspc/payrex-rust"
+repository = "https://github.com/mayspc/payrex-rust"
+license = "MIT"
+keywords = ["payrex", "payment", "api", "sdk", "philippines", "derive"]
+categories = ["api-bindings", "web-programming"]
+readme = "README.md"
+rust-version = "1.90"
+
+[dependencies]
+darling = "0.21.3"
+proc-macro2 = "1.0.103"
+quote = "1.0.41"
+syn = { version = "2.0.108", features = ["full"] }
+
+[lib]
+name = "payrex_derive"
+proc-macro = true
+

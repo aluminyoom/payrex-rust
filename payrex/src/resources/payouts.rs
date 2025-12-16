@@ -7,6 +7,7 @@ use crate::{
     http::HttpClient,
     types::{List, ListParams, PayoutId, PayoutTransactionId, Timestamp},
 };
+use payrex_derive::payrex;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -32,18 +33,15 @@ impl Payouts {
     }
 }
 
+#[payrex(amount, livemode, timestamp)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Payout {
     pub id: PayoutId,
-    pub amount: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub destination: Option<PayoutDestination>,
-    pub livemode: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub net_amount: Option<i64>,
     pub status: PayoutStatus,
-    pub created_at: Timestamp,
-    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -70,16 +68,14 @@ pub enum PayoutTransactionType {
     Adjustment,
 }
 
+#[payrex(amount, timestamp)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PayoutTransaction {
     pub id: PayoutTransactionId,
-    pub amount: i32,
-    pub net_amount: i32,
+    pub net_amount: u64,
     // TODO: identify the type of resource id based on `transaction_type`
     pub transaction_id: PayoutTransactionId,
     pub transaction_type: PayoutTransactionType,
-    pub created_at: Timestamp,
-    pub updated_at: Option<Timestamp>,
 }
 
 #[cfg(test)]
@@ -132,7 +128,7 @@ mod tests {
             net_amount: Some(4900),
             status: PayoutStatus::Pending,
             created_at: Timestamp::from_unix(1_610_000_000),
-            updated_at: Some(Timestamp::from_unix(1_610_001_000)),
+            updated_at: Timestamp::from_unix(1_610_001_000),
         };
         let json = serde_json::to_value(&payout).unwrap();
         assert_eq!(json["id"], "po_123");
@@ -156,7 +152,7 @@ mod tests {
             transaction_id: PayoutTransactionId::new("pot_xyz"),
             transaction_type: PayoutTransactionType::Refund,
             created_at: Timestamp::from_unix(1_610_002_000),
-            updated_at: None,
+            updated_at: Timestamp::from_unix(1_610_002_000),
         };
         let json = serde_json::to_value(&tx).unwrap();
         assert_eq!(json["id"], "pot_abc");
@@ -165,7 +161,7 @@ mod tests {
         assert_eq!(json["transaction_id"], "pot_xyz");
         assert_eq!(json["transaction_type"], "refund");
         assert_eq!(json["created_at"], 1_610_002_000);
-        assert!(json.get("updated_at").unwrap().is_null());
+        assert_eq!(json["updated_at"], 1_610_002_000);
     }
 }
 #[test]

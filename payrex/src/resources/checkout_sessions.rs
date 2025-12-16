@@ -11,6 +11,7 @@ use crate::{
         PaymentMethodOptions, Timestamp,
     },
 };
+use payrex_derive::payrex;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -42,6 +43,13 @@ impl CheckoutSessions {
     }
 }
 
+#[payrex(
+    livemode,
+    timestamp,
+    currency,
+    metadata,
+    description = "checkout_session"
+)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CheckoutSession {
     pub id: CheckoutSessionId,
@@ -54,14 +62,10 @@ pub struct CheckoutSession {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub client_secret: Option<String>,
     pub status: CheckoutSessionStatus,
-    pub currency: Currency,
     pub line_items: Vec<CheckoutSessionLineItem>,
-    pub livemode: bool,
     pub url: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_intent: Option<PaymentIntent>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub success_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -71,15 +75,11 @@ pub struct CheckoutSession {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_options: Option<PaymentMethodOptions>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub submit_type: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<Timestamp>,
-    pub created_at: Timestamp,
-    pub updated_at: Timestamp,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -90,24 +90,22 @@ pub enum CheckoutSessionStatus {
     Expired,
 }
 
+#[payrex(amount, description = "checkout_session")]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CheckoutSessionLineItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<CheckoutSessionLineItemId>,
     pub name: String,
-    pub amount: u64,
     pub quantity: u64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub image: Option<String>,
 }
 
+#[payrex(currency, metadata, description = "checkout_session")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateCheckoutSession {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer_reference_id: Option<String>,
-    pub currency: Currency,
     pub line_items: Vec<CheckoutSessionLineItem>,
     pub success_url: String,
     pub cancel_url: String,
@@ -120,10 +118,6 @@ pub struct CreateCheckoutSession {
     pub billing_details_collection: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub submit_type: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
 }
 
 impl CreateCheckoutSession {

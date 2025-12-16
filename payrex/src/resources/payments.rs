@@ -8,6 +8,7 @@ use crate::{
     resources::customers::Customer,
     types::{Currency, Metadata, PaymentId, PaymentIntentId, PaymentMethod, Timestamp},
 };
+use payrex_derive::payrex;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -49,18 +50,18 @@ impl Payments {
 ///
 /// When your customer successfully completed a transaction, a Payment resource represents the
 /// actual payment of your customer.
+#[payrex(
+    timestamp,
+    metadata,
+    amount,
+    currency,
+    livemode,
+    description = "payment"
+)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Payment {
     /// Unique identifier for the resource. The prefix is `pay_`.
     pub id: PaymentId,
-
-    /// The amount of the payment to be transferred to your PayRex merchant account. This is a
-    /// positive integer that your customer paid in the smallest currency unit, cents. If the
-    /// customer paid ₱ 120.50, the amount of the Payment should be 12050.
-    ///
-    /// The minimum amount is ₱ 20 (2000 in cents) and the maximum amount is ₱ 59,999,999.99
-    /// (5999999999 in cents).
-    pub amount: u64,
 
     /// If the payment is either partially or fully refunded, the `amount_refunded` represents the
     /// successful refunded attempts. This is a positive integer that you can refund from the
@@ -71,32 +72,15 @@ pub struct Payment {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing: Option<Billing>,
 
-    /// A three-letter ISO currency code in uppercase. As of the moment, we only support PHP.
-    pub currency: Currency,
-
-    /// An arbitrary string attached to the Payment. Useful reference when viewing Payment from
-    /// PayRex Dashboard.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-
     /// The fee that PayRex will deduct from the amount of the Payment. This is a positive integer
     /// in the smallest currency unit, cents. If the fee is ₱ 120.50, the fee of the Payment should
     /// be 12050.
-    pub fee: i64,
-
-    /// The value is `true` if the resource's mode is live or the value is `false` if the resource is
-    /// in test mode.
-    pub livemode: bool,
-
-    /// A set of key-value pairs attached to the Payment. This is useful for storing additional
-    /// information about the Payment.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
+    pub fee: u64,
 
     /// The `net_amount` of the payment is the final computed amount that will be transferred to the
     /// bank account of the merchant. This is a positive integer in the smallest currency unit,
     /// cents. If the `net_amount` is ₱ 120.50, the `net_amount` of the Payment should be 12050.
-    pub net_amount: i64,
+    pub net_amount: u64,
 
     /// The ID of the [`PaymentIntent`] resource that generated the Payment resource.
     pub payment_intent_id: PaymentIntentId,
@@ -116,12 +100,6 @@ pub struct Payment {
     /// has corresponding Refund resources. The value is `true` if the payment is either partially or
     /// fully refunded while the value is `false` if the payment has no refunds.
     pub refunded: bool,
-
-    /// The time the resource was created and measured in seconds since the Unix epoch.
-    pub created_at: Timestamp,
-
-    /// The time the resource was updated and measured in seconds since the Unix epoch.
-    pub updated_at: Timestamp,
 }
 
 /// Contains the billing information of the customer.
@@ -206,18 +184,9 @@ pub enum PaymentStatus {
 /// Query parameters when updating a payment.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/payments/update#parameters)
+#[payrex(metadata, description = "payment")]
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct UpdatePayment {
-    /// An arbitrary string attached to the Payment. Useful reference when viewing Payment from
-    /// PayRex Dashboard.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-
-    /// A set of key-value pairs you can attach to the resource. This can be useful for storing
-    /// additional information about the payment in a hash format.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Metadata>,
-}
+pub struct UpdatePayment {}
 
 impl UpdatePayment {
     /// Creates a new [`UpdatePayment`] instance.
