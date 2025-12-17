@@ -1,27 +1,36 @@
 use darling::FromMeta;
+use proc_macro2::{Ident, Span, TokenStream};
+use quote::{format_ident, quote};
 use syn::{Field, parse_quote, punctuated::Punctuated, token::Comma};
+
+use crate::utils::is_type;
 
 #[derive(Debug, Default, FromMeta)]
 #[darling(default)]
 pub(crate) struct PayrexAttrs {
     pub timestamp: bool,
     pub metadata: bool,
-    pub amount: bool,
+    pub amount: Option<bool>,
     pub livemode: bool,
     pub description: Option<String>,
-    pub currency: bool,
+    pub currency: Option<bool>,
+    pub optional: bool,
 }
 
 pub(crate) struct ParsedPayrexAttrs {
     attrs: PayrexAttrs,
+    ident: Ident,
     pub fields: Punctuated<Field, Comma>,
+    pub extra_tokens: TokenStream,
 }
 
 impl From<PayrexAttrs> for ParsedPayrexAttrs {
     fn from(value: PayrexAttrs) -> Self {
         Self {
             attrs: value,
+            ident: Ident::new("what", Span::call_site()),
             fields: Punctuated::new(),
+            extra_tokens: TokenStream::new(),
         }
     }
 }
@@ -29,6 +38,11 @@ impl From<PayrexAttrs> for ParsedPayrexAttrs {
 impl ParsedPayrexAttrs {
     pub fn set_fields(mut self, fields: &mut Punctuated<Field, Comma>) -> Self {
         self.fields = fields.clone();
+        self
+    }
+
+    pub fn set_ident(mut self, ident: Ident) -> Self {
+        self.ident = ident;
         self
     }
 
@@ -57,7 +71,13 @@ impl ParsedPayrexAttrs {
     }
 
     pub fn add_amount(&mut self) {
-        if self.attrs.amount {
+        if let Some(is_optional) = self.attrs.amount {
+            let ty = if is_optional {
+                quote! { Option<u64> }
+            } else {
+                quote! { u64 }
+            };
+
             self.fields.push(parse_quote! {
                 /// The amount of the payment to be transferred to your PayRex merchant account. This is a
                 /// positive integer that your customer paid in the smallest currency unit, cents. If the
@@ -65,7 +85,7 @@ impl ParsedPayrexAttrs {
                 ///
                 /// The minimum amount is ₱ 20 (2000 in cents) and the maximum amount is ₱ 59,999,999.99
                 /// (5999999999 in cents).
-                pub amount: u64
+                pub amount: #ty
             });
         }
     }
@@ -118,10 +138,65 @@ If the description is not modified, the default value is "Payment for Billing St
     }
 
     pub fn add_currency(&mut self) {
-        if self.attrs.currency {
+        if let Some(is_optional) = self.attrs.currency {
+            let ty = if is_optional {
+                quote! { Option<Currency> }
+            } else {
+                quote! { Currency }
+            };
+
             self.fields.push(parse_quote! {
                 /// A three-letter ISO currency code in uppercase. As of the moment, we only support PHP.
-                pub currency: Currency
+                pub currency: #ty
+            });
+        }
+    }
+}
+
+impl ParsedPayrexAttrs {
+    fn gen_optional_fields(&self) -> TokenStream {
+        let new_fields = self.fields.iter().map(|f| {
+            let field_name = &f.ident;
+
+            let field_name = match field_name {
+                Some(name) => name,
+                None => return quote! {},
+            };
+
+            let doc_attrs = f.attrs.iter().filter(|attr| attr.path().is_ident("doc"));
+            let original_ty = &f.ty;
+
+            let final_ty = if is_type(original_ty, "Option") {
+                quote! { #original_ty }
+            } else {
+                quote! { Option<#original_ty> }
+            };
+
+            quote! {
+                #(#doc_attrs)* #[serde(skip_serializing_if = "Option::is_none")]
+                pub #field_name: #final_ty
+            }
+        });
+
+        quote! {
+            #(#new_fields),*
+        }
+    }
+
+    pub fn add_optional_struct(&mut self) {
+        if self.attrs.optional {
+            let optional_ident = format_ident!("Optional{}", self.ident);
+            let optional_fields = self.gen_optional_fields();
+            let docs = format!(
+                "Optional variant for {}. This is only used for responses in billing statements API.",
+                self.ident
+            );
+            self.extra_tokens.extend(quote! {
+                #[doc = #docs]
+                #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+                pub struct #optional_ident {
+                    #optional_fields
+                }
             });
         }
     }

@@ -7,7 +7,7 @@ use crate::{
     http::HttpClient,
     types::{Currency, Metadata, PaymentId, RefundId, Timestamp},
 };
-use payrex_derive::payrex;
+use payrex_derive::{Payrex, payrex_attr};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -45,12 +45,12 @@ impl Refunds {
 }
 
 /// A Refund resource represents a refunded amount of a paid payment.
-#[payrex(
+#[payrex_attr(
     timestamp,
     metadata,
-    amount,
-    currency,
     livemode,
+    amount = false,
+    currency = false,
     description = "refund"
 )]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -93,7 +93,7 @@ pub enum RefundStatus {
 }
 
 /// The reason of a Refund.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RefundReason {
     /// The reason for a refund is from a fraudulent payment.
@@ -118,14 +118,15 @@ pub enum RefundReason {
     WrongProductReceived,
 
     /// The reason for a refund is indicated in the remarks.
+    #[default]
     Others,
 }
 
 /// Query parameters when creating a refund.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/refunds/create#parameters)
-#[payrex(amount, currency, metadata, description = "refund")]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[payrex_attr(metadata, amount = false, currency = false, description = "refund")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Payrex)]
 pub struct CreateRefund {
     /// The ID of the payment to be refunded.
     pub payment_id: PaymentId,
@@ -141,54 +142,18 @@ pub struct CreateRefund {
     /// Remarks about the Refund resource. This is useful when viewing a refund via PayRex
     /// Dashboard.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(
+        description = "Sets the remarks when refund status is set to `others` when creating a refund."
+    )]
     pub remarks: Option<String>,
 }
 
 /// Query parameters when updating a refund.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/refunds/update#parameters)
-#[payrex(metadata)]
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[payrex_attr(metadata)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, Payrex)]
 pub struct UpdateRefund {}
-
-impl CreateRefund {
-    /// Creates a new [`CreateRefund`] instance.
-    #[must_use]
-    pub fn new(
-        payment_id: PaymentId,
-        amount: u64,
-        currency: Currency,
-        reason: RefundReason,
-    ) -> Self {
-        Self {
-            payment_id,
-            amount,
-            currency,
-            reason,
-            metadata: None,
-            remarks: None,
-            description: None,
-        }
-    }
-
-    /// Sets the metadata in the query params when creating a refund.
-    pub fn metadata(mut self, metadata: Metadata) -> Self {
-        self.metadata = Some(metadata);
-        self
-    }
-
-    /// Sets the remarks when refund status is set to `others` when creating a refund.
-    pub fn remarks(mut self, remarks: impl Into<String>) -> Self {
-        self.remarks = Some(remarks.into());
-        self
-    }
-
-    /// Sets the description in the query params when creating a refund.
-    pub fn description(mut self, description: impl Into<String>) -> Self {
-        self.description = Some(description.into());
-        self
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -275,9 +240,9 @@ mod tests {
 
         let params = CreateRefund::new(
             PaymentId::new("pay_abc"),
+            RefundReason::WrongProductReceived,
             123,
             Currency::PHP,
-            RefundReason::WrongProductReceived,
         )
         .metadata(metadata.clone())
         .remarks("note")

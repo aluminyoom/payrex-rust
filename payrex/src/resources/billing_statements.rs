@@ -13,7 +13,7 @@ use crate::{
         Timestamp,
     },
 };
-use payrex_derive::payrex;
+use payrex_derive::{Payrex, payrex_attr};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -123,6 +123,11 @@ impl BillingStatements {
             .await
     }
 
+    /// Mark uncollectible a billing statement resource.
+    ///
+    /// Endpoint: `POST /billing_statements/:id/mark_uncollectible`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/billing_statements/mark_uncollectible)
     pub async fn mark_uncollectible(&self, id: &BillingStatementId) -> Result<BillingStatement> {
         self.http
             .post(
@@ -136,12 +141,12 @@ impl BillingStatements {
 /// Billing Statement Resource.
 ///
 /// [Learn more about it here](https://docs.payrexhq.com/docs/api/billing_statements)
-#[payrex(
-    amount,
-    currency,
+#[payrex_attr(
     timestamp,
     livemode,
     metadata,
+    currency = false,
+    amount = false,
     description = "billing_statements"
 )]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -166,12 +171,18 @@ pub struct BillingStatement {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub due_at: Option<Timestamp>,
 
+    /// The time when a billing statement was finalized.
+    ///
+    /// Measured in seconds since the Unix epoch.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub finalized_at: Option<Timestamp>,
 
+    /// The name of the merchant where the billing statement belongs to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_statement_merchant_name: Option<String>,
 
+    /// The number associated with a billing statement.
+    // TODO: Consider using u64 instead
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_statement_number: Option<String>,
 
@@ -185,21 +196,36 @@ pub struct BillingStatement {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_items: Option<Vec<BillingStatementLineItem>>,
 
-    /// The [PaymentIntent](https://docs.payrexhq.com/docs/api/payment_intents) resource created for the [`BillingStatement`].
+    /// The [PaymentIntent](https://docs.payrexhq.com/docs/api/payment_intents) resource created
+    /// for the [`BillingStatement`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_intent: Option<OptionalPaymentIntent>,
+
+    /// The setup for future usage of this billing statement.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<String>,
+
+    /// This attribute holds the statement descriptor for the billing statement.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<String>,
+
+    /// The latest status of the BillingStatement. Possible values are open, draft, paid, void or uncollectible.
     pub status: BillingStatementStatus,
+
+    /// Set of key-value pairs that can modify the behavior of the payment processing for the
+    /// billing statement.
     pub payment_settings: PaymentSettings,
+
+    /// A customer resource that is associated with the billing statement (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<OptionalCustomer>,
 }
 
+/// Payment Settings for a billing statement.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PaymentSettings {
+    /// The list of payment methods allowed to be processed by the payment intent of the billing
+    /// statement.
     pub payment_methods: Vec<PaymentMethod>,
 }
 
@@ -226,99 +252,57 @@ pub enum BillingStatementStatus {
 /// Query parameters when creating a billing statement.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/billing_statements/create#parameters)
-#[payrex(currency, metadata, description = "billing_statements")]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[payrex_attr(metadata, currency = false, description = "billing_statements")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Payrex)]
 pub struct CreateBillingStatement {
     /// The ID of a customer resource. To learn more about the customer resource, you can refer
     /// [here](https://docs.payrexhq.com/docs/api/customers).
     pub customer_id: CustomerId,
 
+    /// Set of key-value pairs that can modify the behavior of the payment processing for the
+    /// billing statement.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(description = "Sets the payment settings when creating a billing statement.")]
     pub payment_settings: Option<PaymentSettings>,
 
+    /// Defines if the billing information fields will always show or managed by PayRex. Default value is `always`.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(
+        description = "Sets the billing details collection when creating a billing statement."
+    )]
     pub billing_details_collection: Option<String>,
 }
 
-#[payrex(metadata, description = "billing_statements")]
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+/// Query parameters when updating a billing statement.
+///
+/// [Reference](https://docs.payrexhq.com/docs/api/billing_statements/update#parameters)
+#[payrex_attr(metadata, description = "billing_statements")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Payrex)]
 pub struct UpdateBillingStatement {
+    /// The ID of a customer resource. To learn more about the customer resource, you can refer
+    /// [here](https://docs.payrexhq.com/docs/api/customers).
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(description = "Sets the customer ID before updating a billing statement.")]
     pub customer_id: Option<CustomerId>,
 
+    /// Set of key-value pairs that can modify the behavior of the payment processing for the
+    /// billing statement.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(description = "Sets the payment settings before updating a billing statement.")]
     pub payment_settings: Option<PaymentSettings>,
 
+    /// Defines if the billing information fields will always show or managed by PayRex.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(
+        description = "Sets the billing details collection before updating a billing statement."
+    )]
     pub billing_details_collection: Option<String>,
 
+    /// The time when the billing statement is expected to be paid. If the due_at is already past, your customer can still pay the billing statement if the status is open.
+    ///
+    /// Measured in seconds since the Unix epoch.
+    #[payrex(description = "Sets the deadline for the billing statement at a specified date.")]
     pub due_at: Option<Timestamp>,
-}
-
-impl CreateBillingStatement {
-    #[must_use]
-    pub fn new(customer_id: CustomerId, currency: Currency) -> Self {
-        Self {
-            customer_id,
-            currency,
-            payment_settings: None,
-            billing_details_collection: None,
-            description: None,
-            metadata: None,
-        }
-    }
-
-    pub fn payment_settings(mut self, settings: PaymentSettings) -> Self {
-        self.payment_settings = Some(settings);
-        self
-    }
-
-    pub fn billing_details_collection(mut self, collection: impl Into<String>) -> Self {
-        self.billing_details_collection = Some(collection.into());
-        self
-    }
-
-    pub fn description(mut self, description: impl Into<String>) -> Self {
-        self.description = Some(description.into());
-        self
-    }
-
-    pub fn metadata(mut self, metadata: Metadata) -> Self {
-        self.metadata = Some(metadata);
-        self
-    }
-}
-
-impl UpdateBillingStatement {
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn customer_id(mut self, id: CustomerId) -> Self {
-        self.customer_id = Some(id);
-        self
-    }
-
-    pub fn billing_details_collection(mut self, collection: impl Into<String>) -> Self {
-        self.billing_details_collection = Some(collection.into());
-        self
-    }
-
-    pub fn payment_settings(mut self, settings: PaymentSettings) -> Self {
-        self.payment_settings = Some(settings);
-        self
-    }
-
-    pub fn description(mut self, description: impl Into<String>) -> Self {
-        self.description = Some(description.into());
-        self
-    }
-
-    pub fn metadata(mut self, metadata: Metadata) -> Self {
-        self.metadata = Some(metadata);
-        self
-    }
 }
 
 #[cfg(test)]

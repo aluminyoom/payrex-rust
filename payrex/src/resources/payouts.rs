@@ -7,7 +7,7 @@ use crate::{
     http::HttpClient,
     types::{List, ListParams, PayoutId, PayoutTransactionId, Timestamp},
 };
-use payrex_derive::payrex;
+use payrex_derive::payrex_attr;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -42,7 +42,7 @@ impl Payouts {
 /// The Payout resource is created when you are scheduled to receive money from PayRex. Payouts are
 /// made depending on the payout schedule for your PayRex merchant account. A Payout resource
 /// represents a net amount of money settled to your nominated bank account.
-#[payrex(amount, livemode, timestamp)]
+#[payrex_attr(livemode, timestamp, amount = false)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Payout {
     /// Unique identifier for the resource. The prefix is `po_`.
@@ -112,7 +112,7 @@ pub enum PayoutTransactionType {
 
 /// The Payment Transaction resource represents every line item of a Payout. Every Payout
 /// Transaction belongs to a Payout resource.
-#[payrex(amount, timestamp)]
+#[payrex_attr(timestamp, amount = false)]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PayoutTransaction {
     /// Unique identifier for the resource. The prefix is `po_txn_`.

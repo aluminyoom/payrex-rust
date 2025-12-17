@@ -4,7 +4,7 @@
 
 use std::sync::Arc;
 
-use payrex_derive::payrex;
+use payrex_derive::{Payrex, payrex_attr};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -13,6 +13,7 @@ use crate::{
     types::{BillingStatementId, BillingStatementLineItemId, Timestamp},
 };
 
+/// Billing Statement Lines API
 #[derive(Clone)]
 pub struct BillingStatementLineItems {
     http: Arc<HttpClient>,
@@ -24,6 +25,11 @@ impl BillingStatementLineItems {
         Self { http }
     }
 
+    /// Creates a billing statement line item resource.
+    ///
+    /// Endpoint: `POST /billing_statement_line_items`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/billing_statement_line_items/create)
     pub async fn create(
         &self,
         params: CreateBillingStatementLineItem,
@@ -33,6 +39,11 @@ impl BillingStatementLineItems {
             .await
     }
 
+    /// Updates a billing statement line item resource.
+    ///
+    /// Endpoint: `PUT /billing_statement_line_items/:id`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/billing_statement_line_items/update)
     pub async fn update(
         &self,
         id: BillingStatementLineItemId,
@@ -46,6 +57,11 @@ impl BillingStatementLineItems {
             .await
     }
 
+    /// Deletes a billing statement line item resource.
+    ///
+    /// Endpoint: `DELETE /billing_statement_line_items/:id`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/billing_statement_line_items/delete)
     pub async fn delete(&self, id: &BillingStatementLineItemId) -> Result<()> {
         self.http
             .delete(&format!("/billing_statement_line_items/{}", id.as_str()))
@@ -53,67 +69,68 @@ impl BillingStatementLineItems {
     }
 }
 
-#[payrex(livemode, timestamp, description = "billing_statement_line_items")]
+/// The billing statement line item is a line item of a billing statement that pertains to a
+/// business's products or services.
+#[payrex_attr(livemode, timestamp, description = "billing_statement_line_items")]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BillingStatementLineItem {
+    /// Unique identifier for the resource. The prefix is `bstm_li_`.
     pub id: BillingStatementLineItemId,
+
+    /// The amount of the line item in a single unit.
     pub unit_price: u64,
+
+    /// The quantity of the line item. The quantity will be multiplied by the line_item.amount to
+    /// compute the final amount of the billing statement.
+    ///
+    /// This is a positive integer in the smallest currency unit, cents. If the line item's unit
+    /// price is ₱ 120.50, the value should be 12050.
     pub quantity: u64,
+
+    /// The ID of the billing statement where the line item is associated.
     pub billing_statement_id: BillingStatementId,
 }
 
-#[payrex(description = "billing_statement_line_items")]
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+/// Query parameters when creating a billing statement line item.
+///
+/// [Reference](https://docs.payrexhq.com/docs/api/billing_statement_line_items/create#parameters)
+#[payrex_attr(description = "billing_statement_line_items")]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Payrex)]
 pub struct CreateBillingStatementLineItem {
+    /// The ID of a billing statement resource. To learn more about the billing statement resource,
+    /// refer [here](https://docs.payrexhq.com/docs/api/billing_statements).
     pub billing_statement_id: BillingStatementId,
+
+    /// The amount of the line item in a single unit.
+    ///
+    /// This is a positive integer in the smallest currency unit, cents. If the line item should be
+    /// ₱ 120.50, the amount should be 12050.
     pub unit_price: u64,
+
+    /// The quantity of the line item. The quantity will be multiplied by the line_item.amount to
+    /// compute the final amount of the billing statement.
     pub quantity: u64,
 }
 
-#[payrex(description = "billing_statement_line_items")]
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+/// Query parameters when updating a billing statement line item.
+///
+/// [Reference](https://docs.payrexhq.com/docs/api/billing_statement_line_items/update#parameters)
+#[payrex_attr(description = "billing_statement_line_items")]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Payrex)]
 pub struct UpdateBillingStatementLineItem {
+    /// The amount of the line item in a single unit.
+    ///
+    /// This is a positive integer in the smallest currency unit, cents. If the line item should be
+    /// ₱ 120.50, the amount should be 12050.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(description = "Sets the unit price for a line item in the billing statement.")]
     pub unit_price: Option<u64>,
+
+    /// The quantity of the line item. The quantity will be multiplied by the line_item.amount to
+    /// compute the final amount of the billing statement.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(description = "Sets the quantity for a line item in the billing statement.")]
     pub quantity: Option<u64>,
-}
-
-impl CreateBillingStatementLineItem {
-    #[must_use]
-    pub fn new(
-        billing_statement_id: BillingStatementId,
-        description: impl Into<String>,
-        unit_price: u64,
-        quantity: u64,
-    ) -> Self {
-        Self {
-            billing_statement_id,
-            description: Some(description.into()),
-            unit_price,
-            quantity,
-        }
-    }
-}
-
-impl UpdateBillingStatementLineItem {
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn description(mut self, description: impl Into<String>) -> Self {
-        self.description = Some(description.into());
-        self
-    }
-
-    pub fn unit_price(mut self, price: u64) -> Self {
-        self.unit_price = Some(price);
-        self
-    }
-
-    pub fn quantity(mut self, quantity: u64) -> Self {
-        self.quantity = Some(quantity);
-        self
-    }
 }
 
 #[cfg(test)]
@@ -124,12 +141,9 @@ mod tests {
 
     #[test]
     fn test_create_billing_statement_line_item_builder() {
-        let params = CreateBillingStatementLineItem::new(
-            BillingStatementId::new("bstm_1"),
-            "Item A",
-            1500,
-            3,
-        );
+        let params =
+            CreateBillingStatementLineItem::new(BillingStatementId::new("bstm_1"), 1500, 3)
+                .description("Item A");
         assert_eq!(params.billing_statement_id.as_str(), "bstm_1");
         assert_eq!(params.description, Some("Item A".to_string()));
         assert_eq!(params.unit_price, 1500);

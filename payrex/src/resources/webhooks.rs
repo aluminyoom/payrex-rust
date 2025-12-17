@@ -7,10 +7,11 @@ use crate::{
     http::HttpClient,
     types::{List, ListParams, Timestamp, WebhookId, event::EventType},
 };
-use payrex_derive::payrex;
+use payrex_derive::{Payrex, payrex_attr};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
+/// Webhooks API
 #[derive(Clone)]
 pub struct Webhooks {
     http: Arc<HttpClient>,
@@ -22,36 +23,71 @@ impl Webhooks {
         Self { http }
     }
 
+    /// Creates a Webhook resource.
+    ///
+    /// Endpoint: `POST /webhooks`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/webhooks/create)
     pub async fn create(&self, params: CreateWebhook) -> Result<Webhook> {
         self.http.post("/webhooks", &params).await
     }
 
+    /// Retrieve a Webhook resource by ID.
+    ///
+    /// Endpoint: `GET /webhooks/:id`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/webhooks/retrieve)
     pub async fn retrieve(&self, id: &WebhookId) -> Result<Webhook> {
         self.http.get(&format!("/webhooks/{}", id.as_str())).await
     }
 
+    /// Updates a Webhook resource.
+    ///
+    /// Endpoint: `PUT /webhooks/:id`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/webhooks/update)
     pub async fn update(&self, id: &WebhookId, params: UpdateWebhook) -> Result<Webhook> {
         self.http
             .put(&format!("/webhooks/{}", id.as_str()), &params)
             .await
     }
 
+    /// Delete a Webhook resource by ID.
+    ///
+    /// Endpoint: `DELETE /webhooks/:id`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/webhooks/delete)
     pub async fn delete(&self, id: &WebhookId) -> Result<()> {
         self.http
             .delete(&format!("/webhooks/{}", id.as_str()))
             .await
     }
 
+    /// List Webhook resources.
+    ///
+    /// Endpoint: `GET /webhooks`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/webhooks/list)
     pub async fn list(&self, params: WebhookListParams) -> Result<List<Webhook>> {
         self.http.get_with_params("/webhooks", &params).await
     }
 
+    /// Enable a Webhook resource by ID.
+    ///
+    /// Endpoint: `POST /webhooks/:id/enable`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/webhooks/enable)
     pub async fn enable(&self, id: &WebhookId) -> Result<Webhook> {
         self.http
             .post(&format!("/webhooks/{}/enable", id.as_str()), &())
             .await
     }
 
+    /// Disable a Webhook resource by ID.
+    ///
+    /// Endpoint: `POST /webhooks/:id/disable`
+    ///
+    /// [API Reference](https://docs.payrexhq.com/docs/api/webhooks/disable)
     pub async fn disable(&self, id: &WebhookId) -> Result<Webhook> {
         self.http
             .post(&format!("/webhooks/{}/disable", id.as_str()), &())
@@ -59,90 +95,98 @@ impl Webhooks {
     }
 }
 
-#[payrex(livemode, timestamp, description = "webhook")]
+/// A Webhook resource is used to notify your application about events in your PayRex account.
+///
+/// To learn more about webhooks, please refer to this
+/// [guide](https://docs.payrexhq.com/docs/guide/developer_handbook/webhooks).
+#[payrex_attr(livemode, timestamp, description = "webhook")]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Webhook {
+    /// Unique identifier for the resource. The prefix is `wh_`.
     pub id: WebhookId,
+
+    /// The secret_key is used for webhook signature verification.
+    ///
+    /// To know more about webhook signature verification, please refer to this
+    /// [guide](https://docs.payrexhq.com/docs/guide/developer_handbook/webhooks#4-secure-your-webhook-by-implementing-webhook-signature-verification).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub secret_key: Option<String>,
+
+    /// The latest status of the Webhook. Possible values are `enabled` or `disabled`. A disabled
+    /// webhook means future events and events with remaining retries that the webhook should send
+    /// will discontinue.
     pub status: WebhookStatus,
+
+    /// The URL where the webhook will send the event. To improve the security of the webhook, your
+    /// URL should use HTTPS.
     pub url: String,
+
+    /// An array of strings that defines the list of events the webhook will listen to.
     pub events: Vec<EventType>,
 }
 
+/// The latest status of a Webhook.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum WebhookStatus {
+    /// Webhook is enabled.
     Enabled,
+
+    /// Webhook is disabled.
     Disabled,
 }
 
-#[payrex(description = "webhook")]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Query parameters when creating a webhook.
+///
+/// [Reference](https://docs.payrexhq.com/docs/api/webhooks/create#parameters)
+#[payrex_attr(description = "webhook")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Payrex)]
 pub struct CreateWebhook {
+    /// The URL where PayRex will send the event that happened from your account. For security
+    /// purposes, the URL must be using HTTPS protocol.
     pub url: String,
+
+    /// An array of strings that defines the list of events the webhook will listen to. To learn
+    /// about the possible values, please refer to this
+    /// [list](https://docs.payrexhq.com/docs/api/events/event_types).
     pub events: Vec<EventType>,
 }
 
-#[payrex(description = "webhook")]
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+/// Query parameters when updating a webhook.
+///
+/// [Reference](https://docs.payrexhq.com/docs/api/webhooks/update#parameters)
+#[payrex_attr(description = "webhook")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Payrex)]
 pub struct UpdateWebhook {
+    /// The URL where the webhook will send the event. For security purposes, the URL must be using HTTPS protocol.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(description = "Sets the URL in the query params when updating a webhook.")]
     pub url: Option<String>,
+
+    /// An array of strings that defines the list of events the webhook will listen to. To learn
+    /// about the possible values, please refer to this
+    /// [list](https://docs.payrexhq.com/docs/api/events/event_types).
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(
+        description = "Sets the list of events in the query params when updating a webhook. Note that this overrides existing events to listen to in the webhook."
+    )]
     pub events: Option<Vec<EventType>>,
 }
 
-#[payrex(description = "webhook")]
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+/// Query parameters when listing webhook resources.
+///
+/// [Reference](https://docs.payrexhq.com/docs/api/webhooks/list#parameters)
+#[payrex_attr(description = "webhook")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Payrex)]
 pub struct WebhookListParams {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Baseline pagination fields such as `limit`, `before`, and `after`.
     #[serde(flatten)]
-    pub base: Option<ListParams>,
+    pub list_params: ListParams,
+
+    /// You can search your webhooks via `url`.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(description = "Sets the URL in the query params when listing webhooks.")]
     pub url: Option<String>,
-}
-
-impl CreateWebhook {
-    #[must_use]
-    pub fn new(url: impl Into<String>, events: Vec<EventType>) -> Self {
-        Self {
-            url: url.into(),
-            events,
-            description: None,
-        }
-    }
-
-    pub fn description(mut self, description: impl Into<String>) -> Self {
-        self.description = Some(description.into());
-        self
-    }
-}
-
-impl UpdateWebhook {
-    #[must_use]
-    pub fn new() -> Self {
-        Self {
-            url: None,
-            events: None,
-            description: None,
-        }
-    }
-
-    pub fn url(mut self, url: impl Into<String>) -> Self {
-        self.url = Some(url.into());
-        self
-    }
-
-    pub fn events(mut self, events: Vec<EventType>) -> Self {
-        self.events = Some(events);
-        self
-    }
-
-    pub fn description(mut self, description: impl Into<String>) -> Self {
-        self.description = Some(description.into());
-        self
-    }
 }
 
 #[cfg(test)]

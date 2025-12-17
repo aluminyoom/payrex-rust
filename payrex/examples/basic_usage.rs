@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     use PaymentMethod::*;
     let payment_methods = &[Card, GCash, Maya];
 
-    let params = CreatePaymentIntent::new(10000, Currency::PHP, payment_methods)
+    let params = CreatePaymentIntent::new(payment_methods, 10000, Currency::PHP)
         .description("Example payment for Order #12345")
         .capture_method(CaptureMethod::Automatic)
         .metadata(metadata);
