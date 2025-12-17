@@ -7,7 +7,7 @@ use crate::{
     http::HttpClient,
     types::{List, ListParams, Timestamp, WebhookId, event::EventType},
 };
-use payrex_derive::payrex;
+use payrex_derive::{Payrex, payrex_attr};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -99,7 +99,7 @@ impl Webhooks {
 ///
 /// To learn more about webhooks, please refer to this
 /// [guide](https://docs.payrexhq.com/docs/guide/developer_handbook/webhooks).
-#[payrex(livemode, timestamp, description = "webhook")]
+#[payrex_attr(livemode, timestamp, description = "webhook")]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Webhook {
     /// Unique identifier for the resource. The prefix is `wh_`.
@@ -139,8 +139,8 @@ pub enum WebhookStatus {
 /// Query parameters when creating a webhook.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/webhooks/create#parameters)
-#[payrex(description = "webhook")]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[payrex_attr(description = "webhook")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Payrex)]
 pub struct CreateWebhook {
     /// The URL where PayRex will send the event that happened from your account. For security
     /// purposes, the URL must be using HTTPS protocol.
@@ -155,83 +155,38 @@ pub struct CreateWebhook {
 /// Query parameters when updating a webhook.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/webhooks/update#parameters)
-#[payrex(description = "webhook")]
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[payrex_attr(description = "webhook")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Payrex)]
 pub struct UpdateWebhook {
     /// The URL where the webhook will send the event. For security purposes, the URL must be using HTTPS protocol.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(description = "Sets the URL in the query params when updating a webhook.")]
     pub url: Option<String>,
 
     /// An array of strings that defines the list of events the webhook will listen to. To learn
     /// about the possible values, please refer to this
     /// [list](https://docs.payrexhq.com/docs/api/events/event_types).
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(
+        description = "Sets the list of events in the query params when updating a webhook. Note that this overrides existing events to listen to in the webhook."
+    )]
     pub events: Option<Vec<EventType>>,
 }
 
 /// Query parameters when listing webhook resources.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/webhooks/list#parameters)
-#[payrex(description = "webhook")]
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[payrex_attr(description = "webhook")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Payrex)]
 pub struct WebhookListParams {
     /// Baseline pagination fields such as `limit`, `before`, and `after`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(flatten)]
-    pub base: Option<ListParams>,
+    pub list_params: ListParams,
 
     /// You can search your webhooks via `url`.
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[payrex(description = "Sets the URL in the query params when listing webhooks.")]
     pub url: Option<String>,
-}
-
-impl CreateWebhook {
-    /// Creates a new [`CreateWebhook`] instance.
-    #[must_use]
-    pub fn new(url: impl Into<String>, events: Vec<EventType>) -> Self {
-        Self {
-            url: url.into(),
-            events,
-            description: None,
-        }
-    }
-
-    /// Sets the description in the query params when creating a webhook.
-    pub fn description(mut self, description: impl Into<String>) -> Self {
-        self.description = Some(description.into());
-        self
-    }
-}
-
-impl UpdateWebhook {
-    /// Creates a new [`UpdateWebhook`] instance.
-    #[must_use]
-    pub fn new() -> Self {
-        Self {
-            url: None,
-            events: None,
-            description: None,
-        }
-    }
-
-    /// Sets the URL in the query params when updating a webhook.
-    pub fn url(mut self, url: impl Into<String>) -> Self {
-        self.url = Some(url.into());
-        self
-    }
-
-    /// Sets the list of events in the query params when updating a webhook.
-    /// Note that this overrides existing events to listen to in the webhook.
-    pub fn events(mut self, events: Vec<EventType>) -> Self {
-        self.events = Some(events);
-        self
-    }
-
-    /// Sets the description in the query params when updating a webhook.
-    pub fn description(mut self, description: impl Into<String>) -> Self {
-        self.description = Some(description.into());
-        self
-    }
 }
 
 #[cfg(test)]

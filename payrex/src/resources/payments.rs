@@ -8,7 +8,7 @@ use crate::{
     resources::customers::Customer,
     types::{Currency, Metadata, PaymentId, PaymentIntentId, PaymentMethod, Timestamp},
 };
-use payrex_derive::payrex;
+use payrex_derive::payrex_attr;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -50,7 +50,7 @@ impl Payments {
 ///
 /// When your customer successfully completed a transaction, a Payment resource represents the
 /// actual payment of your customer.
-#[payrex(
+#[payrex_attr(
     timestamp,
     metadata,
     amount,
@@ -184,7 +184,7 @@ pub enum PaymentStatus {
 /// Query parameters when updating a payment.
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/payments/update#parameters)
-#[payrex(metadata, description = "payment")]
+#[payrex_attr(metadata, description = "payment")]
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct UpdatePayment {}
 

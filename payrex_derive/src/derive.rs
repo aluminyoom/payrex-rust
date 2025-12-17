@@ -6,7 +6,7 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{Data, DeriveInput, Field, Fields, Ident, punctuated::Punctuated, token::Comma};
 
-use crate::utils::{get_option_inner, is_type, is_type_deep};
+use crate::utils::{get_inner, is_type, is_type_deep};
 
 static MAP_DESCRIPTION: LazyLock<HashMap<&'static str, &'static str>> = LazyLock::new(|| {
     HashMap::from([
@@ -35,7 +35,7 @@ fn gen_optional_function(
     let ident = &field.ident;
     let ty = &field.ty;
 
-    let inner_ty = get_option_inner(ty).unwrap();
+    let inner_ty = get_inner(ty, "Option").unwrap();
     let docs = receiver.description;
     if is_type_deep(inner_ty, "String") {
         functions.extend(quote! {
@@ -71,7 +71,7 @@ fn gen_required_functions(ident: &Ident, fields: Punctuated<Field, Comma>) -> To
     let fn_args = fields.iter().map(|field| {
         let name = &field.ident;
         let ty = &field.ty;
-        if is_type(ty, "String") {
+        if is_type(ty, "String") || is_type(ty, "Vec") {
             quote! { #name: impl Into<#ty> }
         } else {
             quote! { #name: #ty }
@@ -81,7 +81,7 @@ fn gen_required_functions(ident: &Ident, fields: Punctuated<Field, Comma>) -> To
     let fn_body_assignments = fields.iter().map(|field| {
         let name = &field.ident;
         let ty = &field.ty;
-        if is_type(ty, "String") {
+        if is_type(ty, "String") || is_type(ty, "Vec") {
             quote! { #name: #name.into() }
         } else {
             quote! { #name }

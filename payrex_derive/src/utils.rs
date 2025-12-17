@@ -22,14 +22,14 @@ pub(crate) fn is_type_deep(ty: &Type, name: &str) -> bool {
     false
 }
 
-pub(crate) fn get_option_inner(ty: &Type) -> Option<&Type> {
+pub(crate) fn get_inner<'ty>(ty: &'ty Type, outside_ty: &'ty str) -> Option<&'ty Type> {
     let path = match ty {
         Type::Path(type_path) if type_path.qself.is_none() => &type_path.path,
         _ => return None,
     };
 
     let segment = path.segments.last()?;
-    if segment.ident != "Option" {
+    if segment.ident != outside_ty {
         return None;
     }
 
