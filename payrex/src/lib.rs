@@ -26,8 +26,10 @@ pub use client::Client;
 pub use config::{Config, ConfigBuilder};
 pub use error::{Error, ErrorKind, Result};
 
+/// Version of this crate
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+/// API Base URL for PayRex
 pub const API_BASE_URL: &str = "https://api.payrexhq.com";
 
 #[cfg(test)]
@@ -35,6 +37,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[allow(clippy::const_is_empty)]
     fn test_version_exists() {
         assert!(!VERSION.is_empty());
     }

@@ -4,19 +4,30 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Represents the collection for list parameters used in list endpoints in the API.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct List<T> {
+    /// Type of object that the current list holds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub object: Option<String>,
+
+    /// Contains a collection of data stored in a list.
     pub data: Vec<T>,
+
+    /// Indicates whether the current pagination has more items in the list.
     pub has_more: bool,
+
+    /// Indicates the next page in a list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_page: Option<String>,
+
+    /// The total number of elements in a list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub total_count: Option<u64>,
 }
 
 impl<T> List<T> {
+    /// Instantiates a new list.
     #[must_use]
     pub fn empty() -> Self {
         Self {
@@ -28,16 +39,19 @@ impl<T> List<T> {
         }
     }
 
+    /// Returns `true` if a list is empty.
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
     }
 
+    /// Returns the number of items in a list.
     #[must_use]
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
+    /// Returns the iterator of data from a list.
     pub fn iter(&self) -> impl Iterator<Item = &T> {
         self.data.iter()
     }
@@ -67,17 +81,32 @@ impl<'a, T> IntoIterator for &'a List<T> {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+/// Baseline list parameters for list endpoints
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ListParams {
+    /// Limits the number of resources returned by the endpoint. The minimum amount is 1, and the
+    /// maximum is 100.
     #[serde(skip_serializing_if = "Option::is_none")]
+    //#[payrex(description = "Sets the limit for a pagination in a list.")]
     pub limit: Option<u32>,
+
+    /// A cursor used in pagination. `after` is a resource ID that defines your place in the list.
+    /// For example, if you call a list request and receive 10 resources ending with `bstm_1234`,
+    /// your subsequent calls can include `after=bstm_1234` to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
+    //#[payrex(description = "Sets the page number to search after for in a list.")]
     pub after: Option<String>,
+
+    /// A cursor used in pagination. before is a resource ID that defines your place in the list.
+    /// For example, if you call a list request and receive 10 resources, starting with `bstm_1234`,
+    /// your subsequent calls can include `before=bstm_1234` to fetch the list's previous page.
     #[serde(skip_serializing_if = "Option::is_none")]
+    //#[payrex(description = "Sets the page number to search before in a list.")]
     pub before: Option<String>,
 }
 
 impl ListParams {
+    /// Creates a new [`ListParams`] instance.
     #[must_use]
     pub const fn new() -> Self {
         Self {
@@ -87,18 +116,21 @@ impl ListParams {
         }
     }
 
+    /// Sets the limit to number of resources returned by an endpoint (Clamped to 100).
     #[must_use]
     pub fn limit(mut self, limit: u32) -> Self {
         self.limit = Some(limit.clamp(1, 100));
         self
     }
 
+    /// Sets the resource ID in which resources are fetched after.
     #[must_use]
     pub fn after(mut self, id: impl Into<String>) -> Self {
         self.after = Some(id.into());
         self
     }
 
+    /// Sets the resource ID in which resources are fetched before.
     #[must_use]
     pub fn before(mut self, id: impl Into<String>) -> Self {
         self.before = Some(id.into());

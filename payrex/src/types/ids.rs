@@ -14,7 +14,7 @@ macro_rules! define_id {
         pub struct $name(String);
 
         impl $name {
-            /// # Panics
+            /// Creates a new ID instance.
             ///
             /// Panics if the ID doesn't start with the expected prefix.
             #[must_use]
@@ -30,16 +30,20 @@ macro_rules! define_id {
                 Self(id)
             }
 
+            /// Creates a new ID instance without checking if the expected prefix corresponds to
+            /// it's type.
             #[must_use]
             pub fn new_unchecked(id: impl Into<String>) -> Self {
                 Self(id.into())
             }
 
+            /// Extracts a string slice containing the entire ID.
             #[must_use]
             pub fn as_str(&self) -> &str {
                 &self.0
             }
 
+            /// Returns the expected prefix corresponding to it's ID as a string slice.
             #[must_use]
             pub const fn prefix() -> &'static str {
                 $prefix

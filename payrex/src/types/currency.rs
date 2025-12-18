@@ -8,13 +8,16 @@ use std::fmt;
 /// Currency codes supported by PayRex.
 ///
 /// **Note**: PayRex currently only supports PHP (Philippine Peso).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Currency {
+    /// Philippine Peso (PHP)
+    #[default]
     PHP,
 }
 
 impl Currency {
+    /// Returns the string slice representation (in uppercase) for a [`Currency`].
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
@@ -22,6 +25,7 @@ impl Currency {
         }
     }
 
+    /// Returns the Unicode symbol for a [`Currency`].
     #[must_use]
     pub const fn symbol(self) -> &'static str {
         match self {
@@ -29,6 +33,7 @@ impl Currency {
         }
     }
 
+    /// Returns the number of decimal places for a specified currency.
     #[must_use]
     pub const fn decimal_places(self) -> u8 {
         match self {
@@ -66,12 +71,6 @@ impl Currency {
 impl fmt::Display for Currency {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
-    }
-}
-
-impl Default for Currency {
-    fn default() -> Self {
-        Self::PHP
     }
 }
 
