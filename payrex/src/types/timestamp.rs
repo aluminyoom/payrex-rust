@@ -14,31 +14,37 @@ use std::fmt;
 pub struct Timestamp(DateTime<Utc>);
 
 impl Timestamp {
+    /// Converts Unix timestamp in seconds to UTC timestamp format.
     #[must_use]
     pub fn from_unix(seconds: i64) -> Self {
         Self(Utc.timestamp_opt(seconds, 0).unwrap())
     }
 
+    /// Returns the time now in UTC timestamp format.
     #[must_use]
     pub fn now() -> Self {
         Self(Utc::now())
     }
 
+    /// Returns the Unix timestamp representation of `Timestamp`.
     #[must_use]
     pub fn as_unix(&self) -> i64 {
         self.0.timestamp()
     }
 
+    /// Returns the timestamp as UTC Datetime format.
     #[must_use]
     pub const fn as_datetime(&self) -> &DateTime<Utc> {
         &self.0
     }
 
+    /// Converts the timestamp object to UTC Datetime format.
     #[must_use]
     pub const fn to_datetime(self) -> DateTime<Utc> {
         self.0
     }
 
+    /// Converts the timestamp object to RFC3339 format.
     #[must_use]
     pub fn to_rfc3339(&self) -> String {
         self.0.to_rfc3339()

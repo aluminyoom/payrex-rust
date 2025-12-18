@@ -8,7 +8,7 @@ use crate::{
     resources::customers::Customer,
     types::{Currency, Metadata, PaymentId, PaymentIntentId, PaymentMethod, Timestamp},
 };
-use payrex_derive::payrex_attr;
+use payrex_derive::{Payrex, payrex_attr};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -82,7 +82,7 @@ pub struct Payment {
     /// cents. If the `net_amount` is ₱ 120.50, the `net_amount` of the Payment should be 12050.
     pub net_amount: u64,
 
-    /// The ID of the [`PaymentIntent`] resource that generated the Payment resource.
+    /// The ID of the payment intent resource that generated the Payment resource.
     pub payment_intent_id: PaymentIntentId,
 
     /// The status of the Payment. Possible values are `paid`, or `failed`.
@@ -185,27 +185,8 @@ pub enum PaymentStatus {
 ///
 /// [Reference](https://docs.payrexhq.com/docs/api/payments/update#parameters)
 #[payrex_attr(metadata, description = "payment")]
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Payrex)]
 pub struct UpdatePayment {}
-
-impl UpdatePayment {
-    /// Creates a new [`UpdatePayment`] instance.
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    /// Sets the description in the query params for updating a payment.
-    pub fn description(mut self, description: impl Into<String>) -> Self {
-        self.description = Some(description.into());
-        self
-    }
-
-    /// Sets the metadata in the query params for updating a payment.
-    pub fn metadata(mut self, metadata: Metadata) -> Self {
-        self.metadata = Some(metadata);
-        self
-    }
-}
 
 #[cfg(test)]
 mod tests {

@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Available payment methods for a [`PaymentIntent`].
+/// Available payment methods for a payment intent.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PaymentMethod {
     /// Card payments

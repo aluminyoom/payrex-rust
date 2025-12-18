@@ -40,7 +40,7 @@ pub struct Client {
 }
 
 impl Client {
-    /// # Panics
+    /// Creates a new [`Client`] instance with a specified API key.
     ///
     /// Panics if the API key is invalid. For fallible construction, use [`Client::try_new`].
     #[must_use]
@@ -48,11 +48,13 @@ impl Client {
         Self::try_new(api_key).expect("Failed to create PayRex client")
     }
 
+    /// Creates a new [`Client`] instance without checking if the API key is valid.
     pub fn try_new(api_key: impl Into<String>) -> Result<Self> {
         let config = Config::new(api_key)?;
         Self::with_config(config)
     }
 
+    /// Attach a [`Config`] to the client.
     pub fn with_config(config: Config) -> Result<Self> {
         let http = HttpClient::new(config)?;
         Ok(Self {
@@ -60,46 +62,55 @@ impl Client {
         })
     }
 
+    /// Payment Intents API Endpoints.
     #[must_use]
     pub fn payment_intents(&self) -> PaymentIntents {
         PaymentIntents::new(Arc::clone(&self.http))
     }
 
+    /// Customers API Endpoints.
     #[must_use]
     pub fn customers(&self) -> Customers {
         Customers::new(Arc::clone(&self.http))
     }
 
+    /// Billing Statements API Endpoints.
     #[must_use]
     pub fn billing_statements(&self) -> BillingStatements {
         BillingStatements::new(Arc::clone(&self.http))
     }
 
+    /// Billing Statement Line Items API Endpoints.
     #[must_use]
     pub fn billing_statement_line_items(&self) -> BillingStatementLineItems {
         BillingStatementLineItems::new(Arc::clone(&self.http))
     }
 
+    /// Checkout Sessions API Endpoints.
     #[must_use]
     pub fn checkout_sessions(&self) -> CheckoutSessions {
         CheckoutSessions::new(Arc::clone(&self.http))
     }
 
+    /// Refunds API Endpoints.
     #[must_use]
     pub fn refunds(&self) -> Refunds {
         Refunds::new(Arc::clone(&self.http))
     }
 
+    /// Webhooks API Endpoints.
     #[must_use]
     pub fn webhooks(&self) -> Webhooks {
         Webhooks::new(Arc::clone(&self.http))
     }
 
+    /// Payments API Endpoints.
     #[must_use]
     pub fn payments(&self) -> Payments {
         Payments::new(Arc::clone(&self.http))
     }
 
+    /// Payouts API Endpoints.
     #[must_use]
     pub fn payouts(&self) -> Payouts {
         Payouts::new(Arc::clone(&self.http))

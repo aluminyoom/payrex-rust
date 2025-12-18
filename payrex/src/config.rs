@@ -21,6 +21,8 @@ pub struct Config {
 }
 
 impl Config {
+    /// Creates a new [`Config`] instance with an API key. This also validates if the API key is
+    /// non-empty and determines `livemode` based from it's prefix.
     pub fn new(api_key: impl Into<String>) -> Result<Self> {
         let api_key = api_key.into();
 
@@ -41,41 +43,49 @@ impl Config {
         })
     }
 
+    /// Returns a new [`ConfigBuilder`] instance.
     #[must_use]
     pub fn builder() -> ConfigBuilder {
         ConfigBuilder::default()
     }
 
+    /// Returns the API key as a string slice.
     #[must_use]
     pub fn api_key(&self) -> &str {
         &self.api_key
     }
 
+    /// Returns the base URL for the PayRex API as a string slice.
     #[must_use]
     pub fn api_base_url(&self) -> &str {
         &self.api_base_url
     }
 
+    /// Returns the timeout duration for a request in [`Duration`].
     #[must_use]
     pub const fn timeout(&self) -> Duration {
         self.timeout
     }
 
+    /// Returns the max retries a user can make from failed requests.
     #[must_use]
     pub const fn max_retries(&self) -> u32 {
         self.max_retries
     }
 
+    /// Returns the delay before a new request is made after a failed request.
     #[must_use]
     pub const fn retry_delay(&self) -> Duration {
         self.retry_delay
     }
 
+    /// Returns the user agent of the client as a string slice.
     #[must_use]
     pub fn user_agent(&self) -> &str {
         &self.user_agent
     }
 
+    /// Returns `true` if the configuration is in test mode.
     #[must_use]
     pub const fn is_test_mode(&self) -> bool {
         self.test_mode
@@ -97,53 +107,62 @@ pub struct ConfigBuilder {
 }
 
 impl ConfigBuilder {
+    /// Returns a new [`ConfigBuilder`] instance.
     #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Sets the API key.
     #[must_use]
     pub fn api_key(mut self, api_key: impl Into<String>) -> Self {
         self.api_key = Some(api_key.into());
         self
     }
 
+    /// Sets the API base URL to call requests from.
     #[must_use]
     pub fn api_base_url(mut self, url: impl Into<String>) -> Self {
         self.api_base_url = Some(url.into());
         self
     }
 
+    /// Sets the duration before a request times out.
     #[must_use]
     pub const fn timeout(mut self, timeout: Duration) -> Self {
         self.timeout = Some(timeout);
         self
     }
 
+    /// Sets the maximum amount of retries for failed requests.
     #[must_use]
     pub const fn max_retries(mut self, max_retries: u32) -> Self {
         self.max_retries = Some(max_retries);
         self
     }
 
+    /// Sets the duration before retrying the same requests after a failed request.
     #[must_use]
     pub const fn retry_delay(mut self, delay: Duration) -> Self {
         self.retry_delay = Some(delay);
         self
     }
 
+    /// Sets the user agent for the client.
     #[must_use]
     pub fn user_agent(mut self, user_agent: impl Into<String>) -> Self {
         self.user_agent = Some(user_agent.into());
         self
     }
 
+    /// Sets the client to test mode.
     #[must_use]
     pub const fn test_mode(mut self, enabled: bool) -> Self {
         self.test_mode = enabled;
         self
     }
 
+    /// Validates the API key and finalizes the config to a [`Config`] instance.
     pub fn build(self) -> Result<Config> {
         let api_key = self
             .api_key

@@ -25,11 +25,13 @@ use std::collections::HashMap;
 pub struct Metadata(HashMap<String, String>);
 
 impl Metadata {
+    /// Create a new [`Metadata`] instance.
     #[must_use]
     pub fn new() -> Self {
         Self(HashMap::new())
     }
 
+    /// Create a new [`Metadata`] instance with an initial entry.
     #[must_use]
     pub fn with_pair(key: impl Into<String>, value: impl Into<String>) -> Self {
         let mut metadata = Self::new();
@@ -37,38 +39,51 @@ impl Metadata {
         metadata
     }
 
+    /// Insert a new key-value entry in the metadata.
+    ///
+    /// Similar to HashMap, this operation cost ~O(1) runtime.
     pub fn insert(&mut self, key: impl Into<String>, value: impl Into<String>) {
         self.0.insert(key.into(), value.into());
     }
 
+    /// Retrieve the value of a key from the metadata.
     #[must_use]
     pub fn get(&self, key: &str) -> Option<&str> {
         self.0.get(key).map(String::as_str)
     }
 
+    /// Remove a key-value entry from the metadata.
+    ///
+    /// Similar to HashMap, this operation cost ~O(1) runtime.
     pub fn remove(&mut self, key: &str) -> Option<String> {
         self.0.remove(key)
     }
 
+    /// Returns `true` if the metadata contains the specified key.
     #[must_use]
     pub fn contains_key(&self, key: &str) -> bool {
         self.0.contains_key(key)
     }
 
+    /// Returns `true` if the metadata is currently empty.
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
+    /// Returns the number of elements in the metadata.
     #[must_use]
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
+    /// An iterator visiting all key-value pairs in arbitrary order. The iterator element type is a
+    /// pair of key-value String `(&String, &String)`.
     pub fn iter(&self) -> impl Iterator<Item = (&String, &String)> {
         self.0.iter()
     }
 
+    /// Clears the metadata, removing all key-value pairs. Keeps the allocated memory for reuse.
     pub fn clear(&mut self) {
         self.0.clear();
     }
