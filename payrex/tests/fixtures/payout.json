@@ -1,0 +1,17 @@
+{
+  "resource": "list",
+  "has_more": false,
+  "data": [
+    {
+      "id": "po_txn_i6P2DdBm6vdKYeAhnCuaWj9Hb5iBxQEX",
+      "resource": "payout_transaction",
+      "amount": 52500,
+      "net_amount": 51324,
+      "payout_id": "po_eVG7pzEk7hLWFUpA6nj9pj4BQTk68kXb",
+      "transaction_type": "payment",
+      "transaction_id": "pay_M5zq1Mmun4bRZgyCXaBc4JLZm4mBtp2T",
+      "created_at": 1760313617,
+      "updated_at": 1760313617
+    }
+  ]
+}

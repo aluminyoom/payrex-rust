@@ -1,0 +1,12 @@
+{
+  "id": "wh_pDQvyHKPJ5J5SahAjDYLG2u6TUxvB6GH",
+  "resource": "webhook",
+  "secret_key": "whsk_kAU2rUe2wRDqz8FJhQzvJMQwMT9nhdd1",
+  "status": "enabled",
+  "description": null,
+  "livemode": false,
+  "url": "https://testpayrexwebhooks.com",
+  "events": ["billing_statement.created"],
+  "created_at": 1766135410,
+  "updated_at": 1766135410
+}

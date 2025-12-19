@@ -49,7 +49,7 @@ impl Customers {
     /// [API Reference](https://docs.payrexhq.com/docs/api/customers/update)
     pub async fn update(&self, id: &CustomerId, params: UpdateCustomer) -> Result<Customer> {
         self.http
-            .patch(&format!("/customers/{}", id.as_str()), &params)
+            .put(&format!("/customers/{}", id.as_str()), &params)
             .await
     }
 

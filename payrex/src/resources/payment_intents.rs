@@ -160,7 +160,7 @@ pub struct PaymentIntent {
     pub payment_method_id: Option<String>,
 
     /// The list of payment methods allowed to be processed by the [`PaymentIntent`].
-    pub payment_methods: Vec<String>,
+    pub payment_methods: Vec<PaymentMethod>,
 
     /// A set of key-value pairs that can modify the behavior of the payment method attached to the
     /// payment intent.

@@ -5,7 +5,7 @@
 use crate::{
     Result,
     http::HttpClient,
-    types::{List, ListParams, Timestamp, WebhookId, event::EventType},
+    types::{Deleted, List, ListParams, Timestamp, WebhookId, event::EventType},
 };
 use payrex_derive::{Payrex, payrex_attr};
 use serde::{Deserialize, Serialize};
@@ -57,7 +57,7 @@ impl Webhooks {
     /// Endpoint: `DELETE /webhooks/:id`
     ///
     /// [API Reference](https://docs.payrexhq.com/docs/api/webhooks/delete)
-    pub async fn delete(&self, id: &WebhookId) -> Result<()> {
+    pub async fn delete(&self, id: &WebhookId) -> Result<Deleted<WebhookId>> {
         self.http
             .delete(&format!("/webhooks/{}", id.as_str()))
             .await

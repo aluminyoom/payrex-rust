@@ -40,7 +40,7 @@ impl Payments {
     /// [API Reference](https://docs.payrexhq.com/docs/api/payments/update)
     pub async fn update(&self, id: &PaymentId, params: UpdatePayment) -> Result<Payment> {
         self.http
-            .patch(&format!("/payments/{}", id.as_str()), &params)
+            .put(&format!("/payments/{}", id.as_str()), &params)
             .await
     }
 }
@@ -53,9 +53,9 @@ impl Payments {
 #[payrex_attr(
     timestamp,
     metadata,
-    amount,
-    currency,
     livemode,
+    currency = false,
+    amount = false,
     description = "payment"
 )]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

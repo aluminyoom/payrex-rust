@@ -89,18 +89,25 @@ pub struct Deleted<Id> {
     pub deleted: bool,
 
     /// Contains the actual object/data in the resource.
-    pub object: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub object: Option<String>,
 }
 
 impl<Id> Deleted<Id> {
     /// Creates a new [`Deleted`] instance for a resource.
     #[must_use]
-    pub fn new(id: Id, object: String) -> Self {
+    pub fn new(id: Id) -> Self {
         Self {
             id,
             deleted: true,
-            object,
+            object: None,
         }
+    }
+
+    /// Sets the object in a deleted resource.
+    pub fn object(mut self, object: impl Into<String>) -> Self {
+        self.object = Some(object.into());
+        self
     }
 }
 
