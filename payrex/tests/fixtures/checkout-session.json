@@ -1,0 +1,73 @@
+{
+    "id": "cs_CuzUcxGRJ9UL3KxBSSAxhm5EhBGWMquu",
+    "resource": "checkout_session",
+    "billing_details_collection": "always",
+    "customer_reference_id": null,
+    "customer_id": null,
+    "customer": null,
+    "client_secret": "cs_CuzUcxGRJ9UL3KxBSSAxhm5EhBGWMquu_secret_zWpe8AKmVRcViK2ReWwnsu4TWfbUoiwZ",
+    "status": "expired",
+    "currency": "PHP",
+    "line_items": [
+        {
+            "id": "cs_li_ZjB8X1mu3pXCdwEXAcpa9eaZMMBMrqCS",
+            "resource": "checkout_session_line_item",
+            "name": "Item",
+            "amount": 10000,
+            "quantity": 1,
+            "description": null,
+            "image": null
+        }
+    ],
+    "livemode": false,
+    "url": "https://checkout.payrexhq.com/c/cs_CuzUcxGRJ9UL3KxBSSAxhm5EhBGWMquu_secret_zWpe8AKmVRcViK2ReWwnsu4TWfbUoiwZ",
+    "payment_intent": {
+        "id": "pi_1w9cmpC2ULPWuJW8rEbf7a3DW7q68xfu",
+        "resource": "payment_intent",
+        "amount": 10000,
+        "client_secret": "pi_1w9cmpC2ULPWuJW8rEbf7a3DW7q68xfu_secret_edvDX7HcqMJBssZ5SqtdsNJKj8PRFrMw",
+        "currency": "PHP",
+        "livemode": false,
+        "payment_methods": [
+            "maya",
+            "gcash"
+        ],
+        "status": "canceled",
+        "next_action": null,
+        "customer": null,
+        "amount_received": 0,
+        "amount_capturable": 0,
+        "description": null,
+        "metadata": null,
+        "payment_method_id": null,
+        "payment_method_options": {
+            "card": {
+                "capture_type": "automatic"
+            }
+        },
+        "last_payment_error": null,
+        "latest_payment": null,
+        "return_url": null,
+        "statement_descriptor": null,
+        "created_at": 1761464810,
+        "updated_at": 1761465240
+    },
+    "metadata": null,
+    "statement_descriptor": null,
+    "success_url": "http://some-url.com/success",
+    "cancel_url": "http://some-url.com/cancel",
+    "payment_methods": [
+        "maya",
+        "gcash"
+    ],
+    "payment_method_options": {
+        "card": {
+            "capture_type": "automatic"
+        }
+    },
+    "description": null,
+    "submit_type": "pay",
+    "expires_at": 1761551210,
+    "created_at": 1761464810,
+    "updated_at": 1761465240
+}

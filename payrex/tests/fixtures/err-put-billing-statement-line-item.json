@@ -1,0 +1,8 @@
+{
+    "errors": [
+        {
+            "code": "resource_invalid_state",
+            "detail": "Billing statement with id bstm_f4rdf8645sMBn44osn2ttXgrM8FnUT5U is in void status. Only line items' billing statements with 'draft' status can be updated."
+        }
+    ]
+}

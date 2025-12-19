@@ -1,0 +1,14 @@
+{
+	"id": "cus_8Te4pwkR5ePwG2UVsY2NTJyVDXYaVQLX",
+	"resource": "customer",
+	"billing": null,
+	"billing_statement_prefix": "SAB9EQZG",
+	"currency": "PHP",
+	"email": "testdev@gmail.com",
+	"livemode": false,
+	"name": "Test dev",
+	"next_billing_statement_sequence_number": "7",
+	"metadata": null,
+	"created_at": 1759465758,
+	"updated_at": 1761445102
+}

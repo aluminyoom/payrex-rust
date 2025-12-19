@@ -1,0 +1,55 @@
+{
+	"id": "bstm_f4rdf8645sMBn44osn2ttXgrM8FnUT5U",
+	"resource": "billing_statement",
+	"amount": 72000,
+	"currency": "PHP",
+	"billing_details_collection": "auto",
+	"customer_id": "cus_8Te4pwkR5ePwG2UVsY2NTJyVDXYaVQLX",
+	"description": "test stuff",
+	"due_at": 1761453260,
+	"finalized_at": 1761443304,
+	"billing_statement_number": "SAB9EQZG-0005",
+	"billing_statement_url": "https://bill.payrexhq.com/b/test_bstm_f4rdf8645sMBn44osn2ttXgrM8FnUT5U_secret_key",
+	"line_items": [
+		{
+			"id": "bstm_li_etTeXvtDUVQnE86m3cUQ7Y6AzgKMGpur",
+			"resource": "billing_statement_line_item",
+			"description": "Rust Book",
+			"billing_statement_id": "bstm_f4rdf8645sMBn44osn2ttXgrM8FnUT5U",
+			"livemode": false,
+			"quantity": 1,
+			"unit_price": 72000,
+			"created_at": 1761443192,
+			"updated_at": 1761443192
+		}
+	],
+	"livemode": false,
+	"metadata": null,
+	"payment_intent": {
+		"id": "pi_oWeDq5YUZ4idPiAzdE6r73vLhXVxritu",
+		"livemode": false,
+		"client_secret": "pi_oWeDq5YUZ4idPiAzdE6r73vLhXVxritu_secret_key",
+		"latest_payment": null,
+		"merchant_id": "merc_gcaDoBHzcoSdmR8Qc1VAx8Yky49FHdNf",
+		"status": "canceled",
+		"statement_descriptor": null,
+		"created_at": 1761443304,
+		"updated_at": 1761443765
+	},
+	"setup_future_usage": null,
+	"status": "void",
+	"statement_descriptor": null,
+	"billing_statement_merchant_name": null,
+	"payment_settings": {
+		"payment_methods": [
+			"maya"
+		]
+	},
+	"customer": {
+		"id": "cus_8Te4pwkR5ePwG2UVsY2NTJyVDXYaVQLX",
+		"name": "Test dev",
+		"email": "testdev@gmail.com"
+	},
+	"created_at": 1761346126,
+	"updated_at": 1761443785
+}
