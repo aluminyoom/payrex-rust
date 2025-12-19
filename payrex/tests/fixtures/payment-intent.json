@@ -1,0 +1,31 @@
+{
+    "id": "pi_FxmwbTkuQQb3qMBrgGiyNyzEFR7BKZVQ",
+    "resource": "payment_intent",
+    "amount": 10000,
+    "client_secret": "pi_FxmwbTkuQQb3qMBrgGiyNyzEFR7BKZVQ_secret_key",
+    "currency": "PHP",
+    "livemode": false,
+    "payment_methods": [
+        "card",
+        "gcash"
+    ],
+    "status": "awaiting_payment_method",
+    "next_action": null,
+    "customer": null,
+    "amount_received": 0,
+    "amount_capturable": 0,
+    "description": null,
+    "metadata": null,
+    "payment_method_id": null,
+    "payment_method_options": {
+        "card": {
+            "capture_type": "automatic"
+        }
+    },
+    "last_payment_error": null,
+    "latest_payment": null,
+    "return_url": null,
+    "statement_descriptor": null,
+    "created_at": 1766103959,
+    "updated_at": 1766103959
+}

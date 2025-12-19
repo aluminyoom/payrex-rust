@@ -15,7 +15,6 @@ rust-version = "1.90"
 
 [lints.rust]
 unused = { level = "allow", priority = -1 }
-missing_docs = "warn"
 
 [dependencies]
 # Async runtime

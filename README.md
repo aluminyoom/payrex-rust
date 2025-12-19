@@ -20,8 +20,8 @@ Unofficial Rust SDK for [PayRex](https://payrexhq.com)
   - [x] Refunds
   - [x] Payouts
 - [ ] Final
-  - [ ] Integration tests
-  - [ ] Documentation improvements
+  - [x] Integration tests
+  - [x] Documentation improvements
   - [ ] Publish to crates.io
 
 ## Installation
