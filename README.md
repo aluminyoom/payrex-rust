@@ -1,8 +1,5 @@
 # payrex-rust
 
-> [!CAUTION]
-> This SDK is currently in early development. The foundation is complete, but API implementations are stubs. Not ready for production use yet!
-
 Unofficial Rust SDK for [PayRex](https://payrexhq.com)
 
 ## Roadmap

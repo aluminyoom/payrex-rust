@@ -1,11 +1,11 @@
 {
-    "id": "bstm_li_etTeXvtDUVQnE86m3cUQ7Y6AzgKMGpur",
-    "resource": "billing_statement_line_item",
-    "description": "Rust Book",
-    "billing_statement_id": "bstm_f4rdf8645sMBn44osn2ttXgrM8FnUT5U",
-    "livemode": false,
-    "quantity": 1,
-    "unit_price": 72000,
-    "created_at": 1761443192,
-    "updated_at": 1761443192
+  "id": "bstm_li_etTeXvtDUVQnE86m3cUQ7Y6AzgKMGpur",
+  "resource": "billing_statement_line_item",
+  "description": "Rust Book",
+  "billing_statement_id": "bstm_f4rdf8645sMBn44osn2ttXgrM8FnUT5U",
+  "livemode": false,
+  "quantity": 1,
+  "unit_price": 72000,
+  "created_at": 1761443192,
+  "updated_at": 1761443192
 }

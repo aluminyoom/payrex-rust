@@ -1,47 +1,47 @@
 {
-    "id": "pay_M5zq1Mmun4bRZgyCXaBc4JLZm4mBtp2T",
-    "resource": "payment",
-    "amount": 52500,
-    "amount_refunded": 525,
-    "billing": {
-        "name": "Test dev",
-        "email": "testdev@gmail.com",
-        "phone": null,
-        "address": {
-            "line1": null,
-            "line2": null,
-            "city": null,
-            "state": null,
-            "postal_code": null,
-            "country": null
-        }
-    },
+  "id": "pay_M5zq1Mmun4bRZgyCXaBc4JLZm4mBtp2T",
+  "resource": "payment",
+  "amount": 52500,
+  "amount_refunded": 525,
+  "billing": {
+    "name": "Test dev",
+    "email": "testdev@gmail.com",
+    "phone": null,
+    "address": {
+      "line1": null,
+      "line2": null,
+      "city": null,
+      "state": null,
+      "postal_code": null,
+      "country": null
+    }
+  },
+  "currency": "PHP",
+  "description": "Payment for Billing Statement SAB9EQZG-0001",
+  "fee": 1050,
+  "livemode": false,
+  "metadata": null,
+  "net_amount": 51324,
+  "payment_intent_id": "pi_VbvpEX4LB1wsi3Do7EpdQvyrTSMptTd6",
+  "status": "paid",
+  "customer": {
+    "id": "cus_8Te4pwkR5ePwG2UVsY2NTJyVDXYaVQLX",
+    "resource": "customer",
+    "billing": null,
+    "billing_statement_prefix": "SAB9EQZG",
     "currency": "PHP",
-    "description": "Payment for Billing Statement SAB9EQZG-0001",
-    "fee": 1050,
+    "email": "testdev@gmail.com",
     "livemode": false,
+    "name": "Test dev",
+    "next_billing_statement_sequence_number": "7",
     "metadata": null,
-    "net_amount": 51324,
-    "payment_intent_id": "pi_VbvpEX4LB1wsi3Do7EpdQvyrTSMptTd6",
-    "status": "paid",
-    "customer": {
-        "id": "cus_8Te4pwkR5ePwG2UVsY2NTJyVDXYaVQLX",
-        "resource": "customer",
-        "billing": null,
-        "billing_statement_prefix": "SAB9EQZG",
-        "currency": "PHP",
-        "email": "testdev@gmail.com",
-        "livemode": false,
-        "name": "Test dev",
-        "next_billing_statement_sequence_number": "7",
-        "metadata": null,
-        "created_at": 1759465758,
-        "updated_at": 1761445102
-    },
-    "payment_method": {
-        "type": "maya"
-    },
-    "refunded": false,
-    "created_at": 1760228622,
-    "updated_at": 1760953537
+    "created_at": 1759465758,
+    "updated_at": 1761445102
+  },
+  "payment_method": {
+    "type": "maya"
+  },
+  "refunded": false,
+  "created_at": 1760228622,
+  "updated_at": 1760953537
 }
